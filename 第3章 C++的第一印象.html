@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="Stylesheet" type="text/css" href="style.css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+<title>第3章 C++的第一印象</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body><script src="highlight.min.js"></script><script>hljs.highlightAll();</script><div class="table-of-contents"></div><script src="第3章 C++的第一印象.js"></script>
+
+<p>
+Table of Contents | <a href="index.html">目录主页</a>
+</p>
+
+<p>
+Previous Chapter | <a href="第2章 引言.html">上一章</a>
+</p>
+
+<p>
+Next Chapter | <a href="第4章 命名空间.html">下一章</a>
+</p>
+
+<hr />
+
+<p>
+本章将进一步探讨 C++。通过各种示例，介绍了在结构体中声明函数的可能性；引入了类的概念；详细介绍了类型转换；引入了许多新类型，并讨论了 C 语言的几个重要符号扩展。
+</p>
+
+
+<div id="3.1: 与C语言的显著差异"><h1 id="3.1: 与C语言的显著差异" class="header"><a href="#3.1: 与C语言的显著差异">3.1: 与C语言的显著差异</a></h1></div>
+<p>
+在我们继续“真正的”对象编程方法之前，我们首先介绍一些与 C 编程语言的显著差异: 不仅仅是 C 和 C++ 之间的差异，而是 C 中没有发现或使用的重要语法结构和关键字。
+</p>
+
+<div id="3.1: 与C语言的显著差异-3.1.1: 使用关键字const"><h2 id="3.1.1: 使用关键字const" class="header"><a href="#3.1: 与C语言的显著差异-3.1.1: 使用关键字const">3.1.1: 使用关键字const</a></h2></div>
+<p>
+尽管关键字 <code>const</code> 是 C 语言语法的一部分，但它在 C++ 中的使用比在 C 中更为重要、更为常见和更为严格。
+</p>
+
+<p>
+<code>const</code> 关键字是一个修饰符，说明变量或参数的值不能被修改。在下面的例子中，意图是改变变量 <code>ival</code> 的值，但操作失败：
+</p>
+<pre><code class="language-cpp">    int main()
+    {
+        int const ival = 3;     // 一个常量 int
+                                // 初始化为 3
+        ival = 4;               // 赋值产生一个
+                                // 错误信息
+    }
+</pre></code>
+<p>
+这个例子展示了 <code>ival</code> 可以在定义时被初始化为给定的值，但后续尝试更改这个值（在赋值中）是不允许的。
+</p>
+
+<p>
+与 C 语言不同的是，被声明为 <code>const</code> 的变量可以用于指定数组的大小，如下面的例子所示：
+</p>
+
+<pre><code class="language-cpp">    int const size = 20;
+    char buf[size];             // 20 个字符长度
+</pre></code>
+
+<p>
+ <code>const</code> 关键字的另一个用途是在 <span id="3.1: 与C语言的显著差异-3.1.1: 使用关键字const-指针"></span><strong id="指针">指针</strong> 的声明中，例如在指针参数中。在声明中：
+</p>
+
+<pre><code class="language-cpp">    char const *buf;           // pointer to const char
+</pre></code>
+<p>
+buf 是一个指向字符的指针变量。通过 buf 指向的任何内容都不能通过 buf 进行更改：这些字符被声明为 <code>const</code>。然而，指针 buf 本身可以被更改。因此，类似 <code>*buf = 'a';</code> 的语句是不允许的，而 <code>++buf</code> 是允许的。
+</p>
+
+<p>
+在声明中：
+</p>
+
+<pre><code class="language-cpp">    char *const buf;         //const pointer to char
+</pre></code>
+<p>
+buf 本身是一个常量指针，不能被更改。通过 buf 指向的任何字符都可以随意更改。
+</p>
+
+<p>
+最后，声明
+</p>
+
+<pre><code class="language-cpp">    char const *const buf;   //const pointer to const char
+</pre></code>
+<p>
+也是可能的；在这种情况下，指针和它指向的内容都不能更改。
+</p>
+
+<p>
+关键字 const 的放置原则是：出现在关键字 左侧 的内容都不能被更改。
+</p>
+
+<p>
+尽管简单，这个原则经常被使用。例如，Bjarne Stroustrup 在他的 C++ FAQ 中指出：
+</p>
+
+<p>
+<code>我应该把“const”放在类型前还是后面？</code>
+</p>
+
+<p>
+我把它放在前面，但这是一种口味问题。 "const T" 和 "T const" 都被允许且等价。例如：
+</p>
+<pre><code class="language-cpp">    const int a = 1;        // OK
+    int const b = 2;        // 也OK
+</pre></code>
+<p>
+总之，关键字 const 在 C++ 中的使用非常重要，它可以用来声明常量、指定数组大小，以及在指针声明中限制指针所指向的内容是否可更改。在使用关键字 const 时，需要注意其放置的位置，避免产生歧义和误解。
+</p>
+
+<p>
+Marshall Cline 的 <a href="http://www.parashift.com/c++-faq-lite/const-correctness.html">C++ FAQ</a> （第 18.5 段）。他提供了一个方法：
+</p>
+<blockquote>
+<p>
+ [18.5] <code>const Fred* p</code>、<code>Fred* const p</code> 和 <code>const Fred* const p</code> 有什么区别？ <br >你需要从右到左阅读指针声明。
+
+</p></blockquote>
+</pre></code>
+<p>
+然而，Marshall Cline 的建议还可以改进。以下的步骤可以轻松地解析最复杂的声明：
+</p>
+
+<p>
+1.从变量名开始阅读
+</p>
+
+<p>
+2.尽可能地阅读，直到达到声明的结尾或一个尚未匹配的闭括号。
+</p>
+
+<p>
+3.返回到你开始阅读的地方，然后向后阅读，直到达到声明的开头或一个匹配的开括号。
+</p>
+
+<p>
+4.如果你到达了一个开括号，继续从上一次停止的地方开始进行第 2 步。
+</p>
+
+<p>
+让我们将这个步骤应用于以下（本质是什么无关紧要的）复杂声明。小箭头表示每步应该阅读到哪里，箭头的方向表示阅读的方向：
+</p>
+<pre><code class="language-cpp">    char const *(* const (*(*ip)())[])[]
+
+                             ip          从变量名开始阅读：
+                                             'ip' //is
+
+                             ip)         遇到闭括号/*右括号*/，返回：
+                             --&gt;
+
+                           (*ip)         寻找匹配的开括号/*左括号*/：
+                           &lt;-                //'a pointer to'
+
+                           (*ip)())      下一个未匹配的闭括号：
+                                --&gt;          //'a function（不带参数）'
+
+                         (*(*ip)())      寻找匹配的开括号：
+                         &lt;-                  //'returning a pointer to'
+
+                         (*(*ip)())[])   下一个闭括号：
+                                   --&gt;       //'an array of'
+
+                (* const (*(*ip)())[])   寻找匹配的开括号：
+                &lt;--------                    //'const pointer to'
+
+                (* const (*(*ip)())[])[] 阅读到末尾：
+                                      -&gt;     //'an array of'
+
+    char const *(* const (*(*ip)())[])[] 反向阅读剩下的内容：
+    &lt;-----------                             //'pointers to const char'
+</pre></code>
+<p>
+将所有部分组合起来，我们得到 <code>char const *(* const (*(*ip)())[])[]</code>: ip 是一个指向函数（不带参数）的指针，该函数返回一个指向常量指针数组的指针，这些常量指针 指向 指向常量字符的指针数组。这就是 ip 所代表的内容；这个步骤可以用来解析你遇到的任何声明。
+</p>
+
+<div id="3.1: 与C语言的显著差异-3.1.2: 命名空间"><h2 id="3.1.2: 命名空间" class="header"><a href="#3.1: 与C语言的显著差异-3.1.2: 命名空间">3.1.2: 命名空间</a></h2></div>
+
+<p>
+C++ 引入了命名空间的概念：所有符号都定义在一个更大的上下文中，称为命名空间。命名空间用于避免可能出现的名称冲突，例如程序员想要定义一个操作角度(degrees)的 <code>sin</code> 函数，但不想失去使用标准的操作弧度(radians)的 <code>sin</code> 函数的能力。
+</p>
+
+<p>
+命名空间在第四章中详细介绍。现在应该注意到，大多数编译器需要显式声明一个标准的命名空间：<code>std</code>。因此，除非另有说明，现在注释中的所有示例都隐式地使用以下声明：
+</p>
+<pre><code class="language-cpp">	using namespace std;
+</pre></code>
+
+<p>
+因此，如果您实际上想编译 C++ 注释中给出的示例，请确保源代码以上述 <code>using</code> 声明开头。
+</p>
+
+<div id="3.1: 与C语言的显著差异-3.1.3: 作用域解析运算符&quot;::&quot;"><h2 id="3.1.3: 作用域解析运算符&quot;::&quot;" class="header"><a href="#3.1: 与C语言的显著差异-3.1.3: 作用域解析运算符&quot;::&quot;">3.1.3: 作用域解析运算符"::"</a></h2></div>
+
+<p>
+C++ 引入了几个新的运算符，其中包括作用域解析运算符（<code>::</code>）。该运算符可用于 <span id="3.1: 与C语言的显著差异-3.1.3: 作用域解析运算符&quot;::&quot;-与局部变量同名的全局变量"></span><strong id="与局部变量同名的全局变量">与局部变量同名的全局变量</strong> ：
+</p>
+
+<pre><code class="language-cpp">	#include &lt;stdio.h&gt;
+
+	double counter = 50;                // 全局变量
+
+	int main()
+	{
+		for (int counter = 1;           // 这指的是局部变量
+			 counter != 10;             // 
+			 ++counter)
+		{
+			printf("%d\n",
+					::counter           // 全局变量
+					/                   // 除以
+					counter);           // 局部变量
+		}
+	}
+</pre></code>
+
+<p>
+在上面的程序中，作用域运算符用于寻址全局变量，而不是与之同名的局部变量。在 C++ 中，作用域运算符被广泛使用，但很少用于访问被同名局部变量遮蔽(shadowed by)的全局变量。其主要目的在 <a href="第7章 类.html">第7章</a> 中介绍。
+</p>
+
+<div id="3.1: 与C语言的显著差异-3.1.4: cout,cin,和cerr"><h2 id="3.1.4: cout,cin,和cerr" class="header"><a href="#3.1: 与C语言的显著差异-3.1.4: cout,cin,和cerr">3.1.4: cout,cin,和cerr</a></h2></div>
+<p>
+与 C 语言类似，C++ 定义了标准输入输出流，在程序执行时可用。这些流是：
+</p>
+
+<ul>
+<li>
+<code>cout</code>，类似于 <code>stdout</code>。
+
+<li>
+<code>cin</code>，类似于 <code>stdin</code>。
+
+<li>
+<code>cerr</code>，类似于 <code>stderr</code>。
+
+</ul>
+<p>
+在语法上，这些流不作为函数使用，相反，使用插入运算符 <code>&lt;&lt;</code> 和提取运算符 <code>&gt;&gt;</code> 将数据写入流或从流中读取数据。下面的示例说明了这一点：
+</p>
+
+<pre><code class="language-cpp">	#include &lt;iostream&gt;
+
+	using namespace std;
+
+	int main()
+	{
+		int     ival;
+		char    sval[30];
+
+		cout &lt;&lt; "Enter a number:\n";
+		cin &gt;&gt; ival;
+		cout &lt;&lt; "And now a string:\n";
+		cin &gt;&gt; sval;
+
+		cout &lt;&lt; "The number is: " &lt;&lt; ival &lt;&lt; "\n"
+				"And the string is: " &lt;&lt; sval &lt;&lt; '\n';
+	}
+</pre></code>
+
+<p>
+该程序从 <code>cin</code> 流（通常是键盘）读取数字和字符串，并将这些数据打印到 <code>cout</code> 中。关于流，请注意以下几点：
+</p>
+<ul>
+<li>
+标准流在头文件 <code>iostream</code> 中声明。在 C++ 注释中的示例中，通常未明确提及此头文件。尽管如此，在使用这些流时必须包括（直接或间接）该头文件。与使用 <code>using namespace std;</code> 子句类似，读者应该在所有使用标准流的示例中包含 <code>#include &lt;iostream&gt;</code>。
+
+<li>
+流 <code>cout</code>、<code>cin</code> 和 <code>cerr</code> 是所谓的类类型变量(variables of so-called class-types)。这样的变量通常称为对象(objects)。类在 <a href="第7章 类.html">第7章</a> 中详细讨论，并在 C++ 中广泛使用。
+
+<li>
+流 <code>cin</code> 从流中提取数据并使用提取运算符（两个连续的 <code>&gt;</code> 字符：<code>&gt;&gt;</code>）将提取的信息复制到变量中（例如上面示例中的 <code>ival</code>）。稍后，在注释中，我们将描述运算符在 C++ 中如何执行与语言定义不同的操作，就像这里一样。函数重载已经提到了。在 C++ 中，运算符也可以有多个定义，这称为运算符重载。
+
+<li>
+操纵 <code>cin</code>、<code>cout</code> 和 <code>cerr</code> 的运算符（即 <code>&gt;&gt;</code> 和 <code>&lt;&lt;</code>）也操纵不同类型的变量。在上面的示例中，<code>cout &lt;&lt; ival</code> 导致打印整数值，而 <code>cout &lt;&lt; "Enter a number"</code> 导致打印字符串。因此，运算符的行为取决于提供的变量的类型。
+
+<li>
+提取运算符（<code>&gt;&gt;</code>）通过从文本流中“提取”其值来对变量执行所谓的类型安全赋值。通常，提取运算符会 <span id="3.1: 与C语言的显著差异-3.1.4: cout,cin,和cerr-跳过要提取的值之前的所有空白字符"></span><strong id="跳过要提取的值之前的所有空白字符">跳过要提取的值之前的所有空白字符</strong> 。
+
+<li>
+特殊符号常量用于特殊情况。通常，插入 "\n" 或 '\n' 来终止一行。但是，在插入 <code>endl</code> 符号时，该行将被终止，随后将刷新流的内部缓冲区。因此，可以使用 '\n' 来替代 <code>endl</code>，从而得到更高效的代码。
+
+</ul>
+<p>
+流对象 <code>cin</code>、<code>cout</code> 和 <code>cerr</code> 不是 C++ 语法的一部分。这些流是在头文件 <code>iostream</code> 的定义中的一部分。这类似于 <code>printf</code> 等函数不是 C 语法的一部分，但最初是由认为这些函数很重要的人编写的，并将它们收集在一个运行时库中。
+</p>
+
+<p>
+ 程序仍然可以使用旧式函数，如 <code>printf</code> 和 <code>scanf</code>，而不是新式流。两种风格甚至可以混合使用。但流提供了几个明显的优点，在许多 C++ 程序中已经完全代替了旧式的 C 函数。使用流的一些优点包括：
+</p>
+<ol>
+<li>
+使用插入和提取运算符是类型安全的。与 <code>printf</code> 和 <code>scanf</code> 使用的格式字符串相比，可能会为其参数定义错误的格式说明符，编译器有时无法发出警告。相反，使用 <code>cin</code>、<code>cout</code> 和 <code>cerr</code> 进行参数检查是由编译器执行的。因此，在提供整数参数应该出现字符串参数的位置时，不可能出现错误。使用流时没有格式字符串。
+
+<li>
+实际上，<code>printf</code> 和 <code>scanf</code>（以及使用格式字符串的其他函数）实现了一个在运行时解释的小型语言。相反，使用流时，C++ 编译器知道根据使用的参数执行哪个输入或输出操作。这里没有小型语言。
+
+<li>
+此外，插入和提取运算符的功能可以扩展，允许将不存在于流最初设计时的 <span id="3.1: 与C语言的显著差异-3.1.4: cout,cin,和cerr-类的对象"></span><strong id="类的对象">类的对象</strong> 插入流中或从流中提取。无法扩展 <code>printf</code> 中使用的小型语言。
+
+<li>
+在流的上下文中使用左移和右移运算符说明了 C++ 的另一个能力： <span id="3.1: 与C语言的显著差异-3.1.4: cout,cin,和cerr-运算符重载"></span><strong id="运算符重载">运算符重载</strong> ，允许我们在某些上下文中重新定义运算符执行的操作。从 C 过来需要一些时间来适应运算符重载，但是在很短的时间内，这些重载的运算符会感觉相当舒适。
+
+<li>
+流独立于它们操作的媒介。这个（在这一点上有些抽象的）概念意味着，相同的代码可以在不进行任何修改的情况下用于将您的代码与任何类型的设备进行接口。使用流的代码可用于设备是磁盘上的文件、Internet 连接、数码相机、DVD 设备、卫星链接和更多情况：您可以命名它。流允许您的代码与您的代码所操作的设备解耦（独立），这有助于维护并允许在新情况下重用相同的代码。
+
+</ol>
+<p>
+<code>iostream</code> 库除了 <code>cin</code>、<code>cout</code> 和 <code>cerr</code> 以外还有更多的功能。在 <a href="第6章 IO 流库.html">第6章</a> 中，将更详细地介绍 <code>iostream</code>。尽管 <code>printf</code> 等函数仍然可以在 C++ 程序中使用，但流已经 <span id="3.1: 与C语言的显著差异-3.1.4: cout,cin,和cerr-几乎取代"></span><strong id="几乎取代">几乎取代</strong> 了旧式的 C I/O 函数，如 <code>printf</code>。如果您认为仍然需要使用 <code>printf</code> 和相关函数，请再次考虑：在这种情况下，您是否还没完全掌握流对象的各种可能性。
+</p>
+
+<div id="3.2: 作为结构体的一部分的函数"><h1 id="3.2: 作为结构体的一部分的函数" class="header"><a href="#3.2: 作为结构体的一部分的函数">3.2: 作为结构体的一部分的函数</a></h1></div>
+<p>
+结构体中的成员函数
+</p>
+
+<p>
+早些时候我们提到了函数可以作为结构体的一部分（请参见 <a href="第2章 引言.html#2.5.13: 作为结构体的一部分的函数">第2.5.13节</a> ）。这种函数被称为成员函数。本节简要讨论如何定义这样的函数。
+</p>
+
+<p>
+下面的代码片段展示了一个结构体，其中包含了一个人名和地址的数据字段。结构体的定义中包含了一个名为 <code>print</code> 的函数：
+</p>
+
+<pre><code class="language-cpp">	struct Person
+	{
+		char name[80];
+		char address[80];
+
+		void print();
+	};
+</pre></code>
+
+<p>
+定义成员函数 <code>print</code> 时，使用了结构体的名称（Person）和作用域解析运算符（::）：
+</p>
+<pre><code class="language-cpp">	void Person::print()
+	{
+		cout &lt;&lt; "Name:      " &lt;&lt; name &lt;&lt; "\n"
+				"Address:   " &lt;&lt; address &lt;&lt; '\n';
+	}
+</pre></code>
+
+<p>
+<code>Person::print</code> 的实现展示了如何在不使用结构体类型名称的情况下访问结构体的字段。在这里，函数 <code>Person::print</code> 打印了变量 <code>name</code>。由于 <code>Person::print</code> 本身是 <code>struct person</code> 的一部分，变量 <code>name</code> 隐式地指向相同的类型。
+</p>
+
+<p>
+可以像下面这样使用 <code>struct Person</code>：
+</p>
+
+<pre><code class="language-cpp">	Person person;
+
+	strcpy(person.name, "Karel");
+	strcpy(person.address, "Marskramerstraat 33");
+	person.print();
+</pre></code>
+
+<p>
+成员函数的优点在于被调用的函数自动访问了调用它的结构体的数据字段。在语句 <code>person.print()</code> 中，对象 <code>person</code> 是“基质“(substrate)，在 <code>print</code> 代码中使用的 <code>name</code> 和 <code>address</code> 变量指向存储在 <code>person</code> 对象中的数据。
+</p>
+
+<div id="3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类"><h2 id="3.2.1: 数据隐藏：公共、私有和类" class="header"><a href="#3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类">3.2.1: 数据隐藏：公共、私有和类</a></h2></div>
+<p>
+数据隐藏和结构体中的访问权限
+</p>
+
+<p>
+正如之前提到的（参见 <a href="第2章 引言.html#2.3: C++：优势和主张">第2.3节</a> ），C++包含了专门的语法可能性来实现数据隐藏。数据隐藏是程序的某些部分将其数据隐藏起来的能力。这会导致非常干净的数据定义，也使得这些部分能够强制执行其数据的完整性。
+</p>
+
+<p>
+C++有三个与数据隐藏相关的关键字：<code>private</code>、<code>protected</code>和<code>public</code>。这些关键字可以在结构体的定义中使用。关键字public允许所有后续的结构体字段都可以被所有代码访问;关键字private只允许结构体本身的代码访问后续字段。关键字protected在<a href="">第13章</a>中进行了讨论，有点超出了当前讨论的范围。
+</p>
+
+<p>
+<span id="3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类-在结构体中，除非明确声明，否则所有字段都是public"></span><strong id="在结构体中，除非明确声明，否则所有字段都是public">在结构体中，除非明确声明，否则所有字段都是public</strong> 。利用这一点，我们可以扩展结构体Person：
+</p>
+
+<pre><code class="language-cpp">	struct Person
+	{
+		private:
+			char d_name[80];
+			char d_address[80];
+		public:
+			void setName(char const *n);
+			void setAddress(char const *a);
+			void print();
+			char const *name();
+			char const *address();
+	};
+</pre></code>
+
+<p>
+由于数据字段d_name和d_address位于私有部分，它们只能被定义在结构体内部的成员函数（如setName、setAddress等）访问。例如，考虑以下代码：
+</p>
+
+<pre><code class="language-cpp">	Person fbb;
+
+	fbb.setName("Frank");         // OK，setName是公共的  成员函数
+	strcpy(fbb.d_name, "Knarf");  // error，d_name是私有的 成员变量
+</pre></code>
+
+<p>
+数据完整性的实现方法如下：结构体Person的实际数据在结构体定义中被声明。外部世界使用特殊的函数来访问数据，这些函数也是定义的一部分。这些成员函数控制数据字段和程序其他部分之间的所有流量，因此也称为 <span id="3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类-“接口”函数"></span><strong id="“接口”函数">“接口”函数</strong> 。这样实现的数据隐藏在图2中说明。
+</p>
+
+<p>
+图2：<img src="https://fbb-git.github.io/cppannotations/cppannotations/html/first/datahiding.gif" alt="imageName" style="width:auto;height:auto;display: block; margin: 0 auto;" />
+</p>
+
+<p>
+成员函数setName和setAddress用<code>char const *</code>参数声明。这表明这些函数不会更改作为它们的参数提供的字符串。类似地，成员函数name和address返回<code>char const *</code>：编译器防止调用这些成员函数的代码修改这些成员函数返回的信息。
+</p>
+
+<p>
+下面展示了结构体Person的两个成员函数示例：
+</p>
+
+<pre><code class="language-cpp">	void Person::setName(char const *n)
+	{
+		strncpy(d_name, n, 79);
+		d_name[79] = 0;
+	}
+</pre></code>
+
+<pre><code class="language-cpp">	char const *Person::name()
+	{
+		return d_name;
+	}
+</pre></code>
+
+<p>
+成员函数和数据隐藏概念的强大之处在于成员函数执行特殊任务的能力，例如检查数据的有效性。在上面的示例中，setName仅从其参数中复制最多79个字符到数据成员name中，从而避免了缓冲区溢出。
+</p>
+
+<p>
+数据隐藏概念的另一个例子如下。作为将数据存储在内存中的成员函数的替代方案，可以开发一个特定的库， 其中包含将 <span id="3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类-数据存储在文件"></span><strong id="数据存储在文件">数据存储在文件</strong> 中的成员函数。将一个存储Person结构的程序从内存转换为将数据存储在磁盘上的程序不需要进行特殊的修改。重新编译和链接程序到一个新的库之后，它就从存储在内存中转换为存储在磁盘上。(库的使用者，即程序员很轻松，而库的开发者要重写这些函数实现的内部细节)
+</p>
+
+<p>
+这个例子说明了一个更广泛的概念，即封装。数据隐藏是封装的一种形式。封装通常会减少程序中不同部分之间的耦合。这反过来极大地增强了生成的软件的重用性和可维护性。通过让结构体封装实际的存储介质，使用结构体的程序变得独立于实际使用的存储介质。
+</p>
+
+<p>
+尽管可以使用结构体来实现数据隐藏，但更常见（几乎总是）使用类。 <span id="3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类-类是一种结构体"></span><strong id="类是一种结构体">类是一种结构体</strong> ，不同之处在于类默认使用private访问， <span id="3.2: 作为结构体的一部分的函数-3.2.1: 数据隐藏：公共、私有和类-而结构体默认使用public"></span><strong id="而结构体默认使用public">而结构体默认使用public</strong> 访问。因此，类Person的定义与上面显示的结构体的定义相同，只是关键字struct被替换为class，而初始的private:子句可以省略。我们的排版建议是，类名（以及程序员定义的其他类型名）应以大写字符开头后面跟随小写字母的类型名（例如，Person）。
+</p>
+
+<div id="3.2: 作为结构体的一部分的函数-3.2.2: C语言中的结构体与C++中的结构体"><h2 id="3.2.2: C语言中的结构体与C++中的结构体" class="header"><a href="#3.2: 作为结构体的一部分的函数-3.2.2: C语言中的结构体与C++中的结构体">3.2.2: C语言中的结构体与C++中的结构体</a></h2></div>
+
+<p>
+在本节中，我们将讨论C和C++中的struct和（成员）函数之间的一个重要区别。
+</p>
+
+<p>
+在C中，通常会定义多个函数来处理一个struct，这些函数需要一个指向该struct的指针作为它们的一个参数。以下是一个虚构的C头文件，展示了这个概念：
+</p>
+<blockquote>
+<p>
+ 数据和函数是分离的, 通过向函数传入 指向数据的指针，用函数访问数据。
+</p></blockquote>
+<pre><code class="language-cpp">	/* definition of a struct PERSON    This is C   */
+	typedef struct
+	{
+		char name[80];
+		char address[80];
+	} PERSON;
+
+	/* some functions to manipulate PERSON structs */
+
+	/* initialize fields with a name and address    */
+	void initialize(PERSON *p, char const *nm,
+					   char const *adr);
+
+	/* print information    */
+	void print(PERSON const *p);
+
+	/* etc..    */
+</pre></code>
+
+<p>
+在C++中，有关的函数的声明被 放置在struct或class的定义 *内部*。不再需要 表示关联哪个struct的地址参数。
+</p>
+
+<pre><code class="language-cpp">	class Person
+	{
+		char d_name[80];
+		char d_address[80];
+
+	public:
+		void initialize(char const *nm, char const *adr);
+		void print();
+		// etc..
+	};
+</pre></code>
+
+<p>
+在C++中，不再使用struct地址参数。C中的函数调用：
+</p>
+
+<pre><code class="language-cpp">	PERSON x;
+	initialize(&amp;x, "some name", "some address"); //C语言代码
+</pre></code>
+
+<p>
+在C++中变为：
+</p>
+
+<pre><code class="language-cpp">	Person x;
+	x.initialize("some name", "some address");   //CPP代码，不用传入 &amp;x了。
+</pre></code>
+<div id="3.3: 对C语法的几个补充"><h1 id="3.3: 对C语法的几个补充" class="header"><a href="#3.3: 对C语法的几个补充">3.3: 对C语法的几个补充</a></h1></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.1: 引用"><h2 id="3.3.1: 引用" class="header"><a href="#3.3: 对C语法的几个补充-3.3.1: 引用">3.3.1: 引用</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.2: 右值引用"><h2 id="3.3.2: 右值引用" class="header"><a href="#3.3: 对C语法的几个补充-3.3.2: 右值引用">3.3.2: 右值引用</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.3: 左值、右值等"><h2 id="3.3.3: 左值、右值等" class="header"><a href="#3.3: 对C语法的几个补充-3.3.3: 左值、右值等">3.3.3: 左值、右值等</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.4: 强类型枚举"><h2 id="3.3.4: 强类型枚举" class="header"><a href="#3.3: 对C语法的几个补充-3.3.4: 强类型枚举">3.3.4: 强类型枚举</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表"><h2 id="3.3.5: 初始值设定项列表" class="header"><a href="#3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表">3.3.5: 初始值设定项列表</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-3.3.5.1: 指定初始化"><h3 id="3.3.5.1: 指定初始化" class="header"><a href="#3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-3.3.5.1: 指定初始化">3.3.5.1: 指定初始化</a></h3></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.6: 位字段的初始值设定项"><h2 id="3.3.6: 位字段的初始值设定项" class="header"><a href="#3.3: 对C语法的几个补充-3.3.6: 位字段的初始值设定项">3.3.6: 位字段的初始值设定项</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断"><h2 id="3.3.7: 使用auto做类型推断" class="header"><a href="#3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断">3.3.7: 使用auto做类型推断</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-3.3.7.1: 结构化绑定声明"><h3 id="3.3.7.1: 结构化绑定声明" class="header"><a href="#3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-3.3.7.1: 结构化绑定声明">3.3.7.1: 结构化绑定声明</a></h3></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.8: 定义类型和using声明"><h2 id="3.3.8: 定义类型和using声明" class="header"><a href="#3.3: 对C语法的几个补充-3.3.8: 定义类型和using声明">3.3.8: 定义类型和using声明</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.9: 基于范围的for循环"><h2 id="3.3.9: 基于范围的for循环" class="header"><a href="#3.3: 对C语法的几个补充-3.3.9: 基于范围的for循环">3.3.9: 基于范围的for循环</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.10: 原始字符串字面量"><h2 id="3.3.10: 原始字符串字面量" class="header"><a href="#3.3: 对C语法的几个补充-3.3.10: 原始字符串字面量">3.3.10: 原始字符串字面量</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.11: 二进制常量"><h2 id="3.3.11: 二进制常量" class="header"><a href="#3.3: 对C语法的几个补充-3.3.11: 二进制常量">3.3.11: 二进制常量</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.12: 带有初始值设定项的选择语句"><h2 id="3.3.12: 带有初始值设定项的选择语句" class="header"><a href="#3.3: 对C语法的几个补充-3.3.12: 带有初始值设定项的选择语句">3.3.12: 带有初始值设定项的选择语句</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.13: 属性"><h2 id="3.3.13: 属性" class="header"><a href="#3.3: 对C语法的几个补充-3.3.13: 属性">3.3.13: 属性</a></h2></div>
+
+<div id="3.3: 对C语法的几个补充-3.3.14: 三向比较 （&lt;    &gt;）"><h2 id="3.3.14: 三向比较 （&lt;    &gt;）" class="header"><a href="#3.3: 对C语法的几个补充-3.3.14: 三向比较 （&lt;    &gt;）">3.3.14: 三向比较 （&lt;    &gt;）</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型"><h1 id="3.4: 新的语言定义数据类型" class="header"><a href="#3.4: 新的语言定义数据类型">3.4: 新的语言定义数据类型</a></h1></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.1: 数据类型bool"><h2 id="3.4.1: 数据类型bool" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.1: 数据类型bool">3.4.1: 数据类型bool</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.2: 数据类型wchar_t"><h2 id="3.4.2: 数据类型wchar_t" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.2: 数据类型wchar_t">3.4.2: 数据类型wchar_t</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.3: Unicode编码"><h2 id="3.4.3: Unicode编码" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.3: Unicode编码">3.4.3: Unicode编码</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.4: 数据类型long long int"><h2 id="3.4.4: 数据类型long long int" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.4: 数据类型long long int">3.4.4: 数据类型long long int</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.5: 数据类型size_t"><h2 id="3.4.5: 数据类型size_t" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.5: 数据类型size_t">3.4.5: 数据类型size_t</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.6: std::byte"><h2 id="3.4.6: std::byte" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.6: std::byte">3.4.6: std::byte</a></h2></div>
+
+<div id="3.4: 新的语言定义数据类型-3.4.7: 数字分隔符"><h2 id="3.4.7: 数字分隔符" class="header"><a href="#3.4: 新的语言定义数据类型-3.4.7: 数字分隔符">3.4.7: 数字分隔符</a></h2></div>
+
+<div id="3.5: 强制转换的新语法"><h1 id="3.5: 强制转换的新语法" class="header"><a href="#3.5: 强制转换的新语法">3.5: 强制转换的新语法</a></h1></div>
+
+<div id="3.5: 强制转换的新语法-3.5.1: 运算符static_cast"><h2 id="3.5.1: 运算符static_cast" class="header"><a href="#3.5: 强制转换的新语法-3.5.1: 运算符static_cast">3.5.1: 运算符static_cast</a></h2></div>
+
+<div id="3.5: 强制转换的新语法-3.5.2: 运算符const_cast"><h2 id="3.5.2: 运算符const_cast" class="header"><a href="#3.5: 强制转换的新语法-3.5.2: 运算符const_cast">3.5.2: 运算符const_cast</a></h2></div>
+
+<div id="3.5: 强制转换的新语法-3.5.3: 运算符reinterpret_cast"><h2 id="3.5.3: 运算符reinterpret_cast" class="header"><a href="#3.5: 强制转换的新语法-3.5.3: 运算符reinterpret_cast">3.5.3: 运算符reinterpret_cast</a></h2></div>
+
+<div id="3.5: 强制转换的新语法-3.5.4: 运算符dynamic_cast"><h2 id="3.5.4: 运算符dynamic_cast" class="header"><a href="#3.5: 强制转换的新语法-3.5.4: 运算符dynamic_cast">3.5.4: 运算符dynamic_cast</a></h2></div>
+
+<div id="3.5: 强制转换的新语法-3.5.5: 强转shared_ptr对象"><h2 id="3.5.5: 强转shared_ptr对象" class="header"><a href="#3.5: 强制转换的新语法-3.5.5: 强转shared_ptr对象">3.5.5: 强转shared_ptr对象</a></h2></div>
+
+<div id="3.6: C++中的关键字和保留名称"><h1 id="3.6: C++中的关键字和保留名称" class="header"><a href="#3.6: C++中的关键字和保留名称">3.6: C++中的关键字和保留名称</a></h1></div>
+
+<hr />
+
+<p>
+Table of Contents | <a href="index.html">目录主页</a>
+</p>
+
+<p>
+Previous Chapter |<a href="第2章 引言.html">上一章</a>
+</p>
+
+<p>
+Next Chapter | <a href="第4章 命名空间.html">下一章</a>
+</p>
+
+</body>
+</html>

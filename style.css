@@ -41,7 +41,7 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;;
         margin: 2em 4em 2em 4em;        /*上右下左 边距*/     
         font-size: 140%;                /*字体大小控制*/
-        line-height: 130%;              /*行高130%*/
+        line-height: 150%;              /*行高200%*/
         background: #f0f0e5;            /*背景颜色为黄黄的*/
     }
 
@@ -115,18 +115,20 @@ pre {
 }
 
 p > a {
-    color: white;
+    font-family: "Bitstream Vera Sans Mono","DejaVu Sans Mono", Monaco, "Courier New",  monospace;
+    color: #1ef0ff;
     text-decoration: none;
-    font-size: 0.7em;
-    padding: 3px 6px;
+    font-size: 0.9em;
+    padding: 0px 0px;
     border-radius: 3px;
-    background-color: #1e90ff;
-    text-transform: uppercase;
-    font-weight: bold;
+    background-color: rgba(0, 0, 0, 1);  /*黑色背景*/
+    /*text-transform: uppercase;    /*强制转换为大写*/
+    font-weight: bold;              /* 粗体 */
+    border: 3px solid #ccc;
 }
 
 p > a:hover {
-    color: #dcdcdc;
+    color: red;
     background-color: #484848;
 }
 
@@ -237,21 +239,22 @@ del {
 }
 
 code {
-    font-family: Monaco, "Courier New", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+    font-family: "Bitstream Vera Sans Mono","DejaVu Sans Mono", Monaco, "Courier New",  monospace;
     -webkit-border-radius: 1px;
     -moz-border-radius: 1px;
     border-radius: 1px;
     -moz-background-clip: padding;
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
-    padding: 0px 2px;
+    padding: 0px 3px;
     display: inline-block;
     color: #ff8000;
-    border: 2px solid #ccc;
+    border: 1px solid #ccc;
     background-color:  rgba(240, 240, 229, 0);
+    font-size: 1em;
     font-weight: bold;             /*设置字体粗细的属性*/
-    margin-top: 1em;
-    margin-bottom: 0.5em;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 
@@ -263,6 +266,7 @@ pre code.hljs{
     width: 90%; 
     font-family: "Bitstream Vera Sans Mono","DejaVu Sans Mono", Monaco, "Courier New",  monospace;
     font-size: 1em;
+    margin-bottom: 1em;
 }
 code.hljs{ padding:3px 5px }
 .hljs{background:#272822;color:#ddd }
@@ -273,3 +277,41 @@ code.hljs{ padding:3px 5px }
 .hljs-class .hljs-title,.hljs-title.class_{color:#fff}
 .hljs-comment,.hljs-deletion,.hljs-meta,.hljs-quote{color:#75715e}
 .hljs-doctag,.hljs-keyword,.hljs-literal,.hljs-section,.hljs-selector-id,.hljs-selector-tag,.hljs-title,.hljs-type{font-weight:700}
+
+
+/* 侧边栏目录 尝试 */
+
+.toc:hover,.table-of-contents:hover {
+  opacity: 1;
+}
+.toc,.table-of-contents {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out; /* 指定透明度变化的动画效果 */
+}
+
+.toc,.table-of-contents {
+    position:fixed;                  /*右侧 固定的位置*/
+    border-left: 5px solid #000000;
+    left: 75%;
+    width:25%;
+    overflow-y: scroll;             /*溢出屏幕的时候可以利用滚动条*/
+    height:100vh;
+    top: 0;
+    line-height: 180%;               /*行高130%*/
+    background-color:rgba(240, 240, 229, 0);
+}
+
+.toc a,.table-of-contents a{
+    text-decoration: none;          /*去掉下划线*/
+    color: #1ef0ff;
+    font-size: 0.8em;
+    padding: 0px 10px;
+    background-color: rgba(0, 0, 0, 1);  /*黑色背景*/
+    font-weight: bold;              /* 粗体 */
+    border: 0px solid #ccc;
+}
+
+.toc a:hover,.table-of-contents a:hover{
+    color: red;
+    background-color: #484848;
+}
