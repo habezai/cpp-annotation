@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
+<body><script src="highlight.min.js"></script><script>hljs.highlightAll();</script><div class="table-of-contents"></div><script src="C:\Users\icebg\vimwiki\cpp-annotation_html\第2章 引言.js"></script>
 
 <p>
 Table of Contents | <a href="index.html">目录主页</a>
@@ -109,19 +109,19 @@ C++不是C语言的完美超集。当将文件重命名为具有扩展名 .cc �
 相反，在C++中，sizeof('c') 始终为1（但请参见<a href="第3章 C++的第一印象.html#3.4.2: The data type wchar_t ">第3.4.2节</a>）。int仍然是int类型。我们将在稍后（<a href="第2章 引言.html#2.5.4: 函数重载">第2.5.4节</a>）看到，两个函数调用somefunc(10)和somefunc('\n')可能由不同的函数处理：C++不仅通过名称区分函数，还通过它们的参数类型进行区分，而这两个调用中的参数类型是不同的。前者使用int类型的参数，后者使用char类型的参数。 
 </p>
 <pre><code>somefunc(10);
-</code></pre>
+</code></pre></code>
 <p>
 和
 </p>
 <pre><code>somefunc('\n');
-</code></pre>
+</code></pre></code>
 	
 
 <p>
 C++要求对外部函数进行非常严格的原型设计。例如，在C语言中，像
 </p>
 <pre><code>void func();
-</code></pre>
+</code></pre></code>
 <p>
 这样的原型表示存在一个名为func()的函数，它不返回任何值。该声明未指定函数接受哪些参数（如果有）。
 </p>
@@ -165,19 +165,19 @@ Free Software Foundation (FSF) 提供了一个免费的 C++ 编译器，可以�
 一般情况下，可以使用以下命令编译 C++ 源文件 <code>source.cc</code>：
 </p>
 <pre><code>g++ source.cc
-</code></pre>
+</code></pre></code>
 
 <p>
 这会生成一个二进制程序（a.out 或 a.exe）。如果默认名称不合适，则可以使用 -o 标志指定可执行文件名（这里生成程序 source）：
 </p>
 <pre><code>g++ -o source source.cc
-</code></pre>
+</code></pre></code>
 
 <p>
 如果只需要编译而不需要链接，可以使用 -c 标志生成已编译的模块：
 </p>
 <pre><code>g++ -c source.cc
-</code></pre>
+</code></pre></code>
 
 <p>
 这会生成文件 source.o，稍后可以将其链接到其他模块。正如所指出的那样，要提供编译器选项 <code>-std=c++14</code> 来激活 C++14 标准的特性。
@@ -332,8 +332,7 @@ C++程序在main函数返回时正常结束。对于main函数使用函数try块
 <p>
 根据ANSI/ISO定义，C++语法中实现了“行尾注释”。此注释以//开始，以行尾标记结束。标准C注释，由<code>/*</code>和<code>*/</code>界定，仍然可以在C++中使用：
 </p>
-<pre>
-    int main()
+<pre><code class="language-cpp">    int main()
     {
         // 这是行尾注释
         // 每行只能有一个注释
@@ -341,7 +340,7 @@ C++程序在main函数返回时正常结束。对于main函数使用函数try块
             这是标准C注释，可跨多行
         */
     }
-</pre>
+</pre></code>
 
 <p>
 尽管在示例中使用了C类型的注释，但建议不要在C++函数体内使用此类注释。有时需要暂时禁用现有代码，例如用于测试。在这些情况下，使用标准C注释非常实用。如果被禁用的代码本身包含这种注释，则会导致嵌套注释行，从而导致编译器错误。因此，经验法则是不要在C++函数体内使用C类型注释（或者，当然也可以使用<code>#if 0</code> 到<code>#endif</code>对预处理器指令对）。
@@ -353,12 +352,11 @@ C++程序在main函数返回时正常结束。对于main函数使用函数try块
 C++使用非常严格的类型检查。在调用函数之前必须知道每个函数的原型，并且调用必须与原型匹配。下面的程序：
 </p>
 
-<pre>
-    int main()
+<pre><code class="language-cpp">    int main()
     {
         printf("Hello World\n");
     }
-</pre>
+</pre></code>
 
 <p>
 在C下通常可以编译通过，尽管有一个警告，即printf()是一个未知的函数。但是在C++编译器中，这种情况下应该会失败（注意，应该是，因为不同的编译器可能会有不同的行为）。这个错误当然是由于缺少#include &lt;stdio.h&gt;（在C++中更常见的是#include &lt;cstdio&gt;指令）。
@@ -367,21 +365,19 @@ C++使用非常严格的类型检查。在调用函数之前必须知道每个�
 <p>
 另外，在C++中，正如我们在前面看到的，main函数总是使用int返回值。虽然可以定义int main()而不显式定义返回语句，但在main函数中不可能使用没有显式int表达式的return语句。例如：
 </p>
-<pre>
-    int main()
+<pre><code class="language-cpp">    int main()
     {
         return;     // 无法编译：需要int表达式，例如
                     // return 1;
     }
-</pre>
+</pre></code>
 
 <div id="2.5: C 和 C++ 之间的差异-2.5.4: 函数重载"><h2 id="2.5.4: 函数重载" class="header"><a href="#2.5: C 和 C++ 之间的差异-2.5.4: 函数重载">2.5.4: 函数重载</a></h2></div>
 <p>
 在C++中，可以定义具有相同名称但执行不同操作的函数。这些函数必须在它们的参数列表（和/或它们的const属性）中有所不同。下面给出了一个例子：
 </p>
 
-<pre>
-    #include &lt;stdio.h&gt;
+<pre><code class="language-cpp">    #include &lt;stdio.h&gt;
     void show(int val)
     {
         printf("Integer: %d\n", val);
@@ -400,7 +396,7 @@ C++使用非常严格的类型检查。在调用函数之前必须知道每个�
         show(3.1415);
         show("Hello World!\n");
     }
-</pre>
+</pre></code>
 
 <p>
 在上面的程序中，定义了三个名为show的函数，它们的参数列表分别为<code>int</code>、<code>double</code>和<code>char *</code>。这些函数具有相同的名称。具有相同名称但参数列表不同的函数称为“重载函数”。定义这种函数的行为称为“函数重载”。
@@ -434,8 +430,7 @@ C++不允许具有完全相同名称但仅返回值不同的函数，因为程�
 在C++中，定义函数时可以提供“默认参数”。当程序员没有指定这些参数时，编译器会提供它们。例如：
 </p>
 
-<pre>
-	#include &lt;stdio.h&gt;
+<pre><code class="language-cpp">	#include &lt;stdio.h&gt;
 	void showstring(char *str = "Hello World!\n");
 	int main()
 	{
@@ -443,7 +438,7 @@ C++不允许具有完全相同名称但仅返回值不同的函数，因为程�
 	    showstring();           // 实际上等价于：
 	                            // showstring("Hello World!\n");
 	}
-</pre>
+</pre></code>
 
 <p>
 在定义了默认参数的情况下，省略参数的可能性只是一个不错的功能：除非在调用时明确指定了它，否则是编译器提供缺失的参数。使用默认参数时，程序代码既不会更短也不会更高效。
@@ -453,15 +448,14 @@ C++不允许具有完全相同名称但仅返回值不同的函数，因为程�
 函数可以定义多个默认参数：
 </p>
 
-<pre>
-	void two_ints(int a = 1, int b = 4);
+<pre><code class="language-cpp">	void two_ints(int a = 1, int b = 4);
 	int main()
 	{
 	    two_ints();            // 参数：1, 4
 	    two_ints(20);          // 参数：20, 4
 	    two_ints(20, 5);       // 参数：20, 5
 	}
-</pre>
+</pre></code>
 
 <p>
 当调用函数<code>two_ints</code>时，编译器会在必要时提供一个或两个参数。然而，像<code>two_ints(,6)</code>这样的语句是不被允许的：省略参数时必须在右侧。
@@ -470,15 +464,14 @@ C++不允许具有完全相同名称但仅返回值不同的函数，因为程�
 <p>
 默认参数必须在编译时已知，因为在这个时刻参数被提供给函数。因此， <span id="2.5: C 和 C++ 之间的差异-2.5.5: 默认函数参数-默认参数必须在函数的声明中而不是在其实现中"></span><strong id="默认参数必须在函数的声明中而不是在其实现中">默认参数必须在函数的声明中而不是在其实现中</strong> 被提及：
 </p>
-<pre>
-	// 示例头文件
+<pre><code class="language-cpp">	// 示例头文件
 	extern void two_ints(int a = 1, int b = 4);
 	// 例如在two.cc中的函数代码
 	void two_ints(int a, int b)
 	{
 	    ...
 	}
-</pre>
+</pre></code>
 
 <p>
 当检测到函数定义中的默认参数时，当前编译器会产生编译时错误。 <span id="2.5: C 和 C++ 之间的差异-2.5.5: 默认函数参数-在函数定义中提供默认参数是错误的"></span><strong id="在函数定义中提供默认参数是错误的">在函数定义中提供默认参数是错误的</strong> 。当其他源代码使用函数时，编译器读取头文件而不是函数定义。 因此，若是在函数定义中设置默认参数，则编译器无法确定默认函数参数的值。
@@ -498,8 +491,7 @@ C++中的<code>NULL</code>和<code>nullptr</code>
 几乎总是，但并不总是。由于C++允许函数重载（参见2.5.4节），程序员可能会在 <a href="第2章 引言.html#2.5.4: 函数重载">2.5.4节</a> 所示的情况下面临意外的函数选择：
 </p>
 
-<pre cpp>
-	#include &lt;stdio.h&gt;
+<pre><code class="language-cpp">	#include &lt;stdio.h&gt;
 	void show(int val)
 	{
 		printf("Integer: %d\n", val);
@@ -519,16 +511,15 @@ C++中的<code>NULL</code>和<code>nullptr</code>
 		show(3.1415);
 		show("Hello World!\n");
 	}
-</pre>
+</pre></code>
 
 <p>
 在这种情况下，打算调用<code>show(char const *)</code>的程序员可能会调用<code>show(0)</code>。但这行不通，因为0被解释为int，因此调用了<code>show(int)</code>。但调用<code>show(NULL)</code>也不起作用，因为C++通常将NULL定义为0，而不是<code>((void *)0)</code>。因此，再次调用<code>show(int)</code>。为了解决这些类型的问题，新的C++标准引入了关键字<code>nullptr</code>，代表0指针。在当前的示例中，程序员应该调用<code>show(nullptr)</code>来避免选择错误的函数。nullptr值也可以用来初始化指针变量。例如：
 </p>
 
-<pre cpp>
-	int *ip = nullptr;      // OK
+<pre><code class="language-cpp">	int *ip = nullptr;      // OK
 	int value = nullptr;    // 错误：value不是指针
-</pre>
+</pre></code>
 
 <div id="2.5: C 和 C++ 之间的差异-2.5.7: 参数列表void"><h2 id="2.5.7: 参数列表void" class="header"><a href="#2.5: C 和 C++ 之间的差异-2.5.7: 参数列表void">2.5.7: 参数列表void</a></h2></div>
 
@@ -536,17 +527,15 @@ C++中的<code>NULL</code>和<code>nullptr</code>
 在C中，一个参数列表为空的函数原型，例如：
 </p>
 
-<pre c>
-	void func();
-</pre>
+<pre><code class="language-cpp">	void func();
+</pre></code>
 
 <p>
 意味着声明的函数的参数列表没有原型：对于使用此原型的函数，使用一组参数调用<code>func</code>, C语言编译器不会警告。在C中，当明确声明不需要参数时，使用关键字<code>void</code>，例如：
 </p>
 
-<pre c>
-	void func(void);
-</pre>
+<pre><code class="language-cpp">	void func(void);
+</pre></code>
 
 <p>
 由于C++执行严格的类型检查，因此在C++中，空参数列表表示参数的完全缺失。因此省略了关键字<code>void</code>。
@@ -572,9 +561,8 @@ C函数在C++中的使用
 例如，以下代码片段将函数<code>xmalloc</code>声明为C函数：
 </p>
 
-<pre cpp>
-	extern "C" void *xmalloc(int size);
-</pre>
+<pre><code class="language-cpp">	extern "C" void *xmalloc(int size);
+</pre></code>
 
 <p>
 此声明类似于C中的声明，只是原型前缀为<code>extern "C"</code>。
@@ -584,23 +572,21 @@ C函数在C++中的使用
 另一种声明C函数的稍微不同的方法是：
 </p>
 
-<pre cpp>
-	extern "C"
+<pre><code class="language-cpp">	extern "C"
 	{
 		// C声明放在这里
 	}
-</pre>
+</pre></code>
 
 <p>
 也可以在声明的位置放置预处理器指令。例如，声明C函数的C头文件<code>myheader.h</code>可以在C++源文件中包含如下：
 </p>
 
-<pre cpp>
-	extern "C"
+<pre><code class="language-cpp">	extern "C"
 	{
 		#include &lt;myheader.h&gt;
 	}
-</pre>
+</pre></code>
 
 <p>
 尽管可以使用这两种方法，但在C++源中实际上很少遇到。下一节介绍的是声明外部C函数的更常用的方法。
@@ -615,8 +601,7 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 这样的头文件的设置如下：
 </p>
 
-<pre cpp>
-#ifdef __cplusplus
+<pre><code class="language-cpp">#ifdef __cplusplus
 	extern "C"
 	{
 #endif
@@ -625,7 +610,7 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 #ifdef __cplusplus
 	}
 #endif
-</pre>
+</pre></code>
 
 <p>
 使用这个设置，一个正常的C头文件被<code>extern "C" {</code>包围，它出现在文件的顶部附近，并由<code>}，</code>出现在文件的底部附近。<code>#ifdef</code>指令测试编译的类型：C或C++。例如，像<code>stdio.h</code>这样的C标准头文件就是这样建立的，因此可以用于C和C++。
@@ -635,12 +620,11 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 此外，C++头文件应该支持包含保护。在C++中，同一源文件中两次包含相同的头文件通常是不可取的。这种多重包含可以通过在头文件中包含<code>#ifndef</code>指令来轻松避免。例如：
 </p>
 
-<pre cpp>
-#ifndef MYHEADER_H_
+<pre><code class="language-cpp">#ifndef MYHEADER_H_
 #define MYHEADER_H_
     // 插入头文件的声明，使用 #ifdef __cplusplus 等指令
 #endif
-</pre>
+</pre></code>
 
 <p>
 当预处理器首次扫描此文件时，符号<code>MYHEADER_H_</code>尚未定义。<code>#ifndef</code>条件成功，并扫描所有声明。另外，符号<code>MYHEADER_H_</code>被定义。
@@ -686,8 +670,7 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 例如，考虑以下 switch 语句：
 </p>
 
-<pre cpp>
-	#include &lt;stdio.h&gt;
+<pre><code class="language-cpp">	#include &lt;stdio.h&gt;
 	int main()
 	{
 		switch (int c = getchar())
@@ -709,7 +692,7 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 				printf("Saw other character, hex value 0x%2x\n", c);
 		}
 	}
-</pre>
+</pre></code>
 
 <p>
 注意字符 <code>c</code> 的定义位置：它在 switch 语句的表达式部分中定义。这意味着 <code>c</code> 仅在 switch 语句本身及其嵌套子语句中可用，但不在 switch 的作用域之外可用。
@@ -731,36 +714,32 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 后一个注意点应该不会太惊讶：为了能够评估 if 或 while 语句的逻辑条件，变量的值必须被解释为零（假）或非零（真）。通常这不是问题，但在 C++ 中，对象（例如 std::string 类型（参见<a href="第5章 数据类型string.html">第5章</a>）的对象）经常由函数返回。这些对象可能无法被解释为数字值。如果不行（例如 std::string 对象），则不能在条件或重复语句的表达式子句中定义这样的变量。因此，以下示例将不能编译：
 </p>
 
-<pre cpp>
-	if (std::string myString = getString())     // 假设 getString() 返回一个 std::string 值
+<pre><code class="language-cpp">	if (std::string myString = getString())     // 假设 getString() 返回一个 std::string 值
 	{                                           // 处理 myString
 	}
-</pre>
+</pre></code>
 
 <p>
 上述示例需要进一步澄清。通常情况下，变量可以受益于给定局部作用域，但是在初始化之后需要立即进行额外的检查。初始化和测试不能组合在一个表达式中。需要使用两个嵌套语句。因此，以下示例也无法编译：
 </p>
 
-<pre cpp>
-	if ((int c = getchar()) &amp;&amp; strchr("aeiou", c))
+<pre><code class="language-cpp">	if ((int c = getchar()) &amp;&amp; strchr("aeiou", c))
 		printf("Saw a vowel\n");
-</pre>
+</pre></code>
 
 <p>
 如果出现这种情况，可以使用两个嵌套的 if 语句或使用嵌套复合语句来局部定义 int c ：
 </p>
-<pre cpp>
-	if (int c = getchar())             // 嵌套的 if 语句
+<pre><code class="language-cpp">	if (int c = getchar())             // 嵌套的 if 语句
 		if (strchr("aeiou", c))
 			printf("Saw a vowel\n");
-</pre>
-<pre cpp>
-	{                                  // 嵌套的复合语句
+</pre></code>
+<pre><code class="language-cpp">	{                                  // 嵌套的复合语句
 		int c = getchar();
 		if (c &amp;&amp; strchr("aeiou", c))
 			printf("Saw a vowel\n");
 	}
-</pre>
+</pre></code>
 
 <p>
 建议在定义局部变量时遵循上述规则和建议，以提高代码的可读性、可维护性和效率。
@@ -773,21 +752,19 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 <p>
 定义结构体：
 </p>
-<pre>
-	struct SomeStruct
+<pre><code class="language-cpp">	struct SomeStruct
 	{
 	    int     a;
 	    double  d;
 	    char    string[80];
 	};
-</pre>
+</pre></code>
 <p>
 当定义结构体、联合或其他复合类型时，该类型的标签可以作为类型名称。在上面的示例中，类型名称是 SomeStruct。因此，可以使用类型名称来定义该类型的变量，例如：
 </p>
-<pre>
-	SomeStruct what;
+<pre><code class="language-cpp">	SomeStruct what;
 	what.d = 3.1415;
-</pre>
+</pre></code>
 <p>
 这里定义了一个 SomeStruct 类型的变量 what，并将其成员变量 d 的值设置为 3.1415。
 </p>
@@ -801,14 +778,13 @@ C++中预定义的符号<code>__cplusplus</code>和定义<code>extern "C"</code>
 以下代码片段提供了一个 struct Point 的定义。在这个结构体中，声明了两个 int 数据字段和一个 draw 函数。
 </p>
 
-<pre>
-	struct Point            // 定义屏幕点
+<pre><code class="language-cpp">	struct Point            // 定义屏幕点
 	{
 	    int x;              // 坐标
 	    int y;              // x/y
 	    void draw();        // 绘制函数
 	};
-</pre>
+</pre></code>
 
 <p>
 类似的结构体可以是绘画程序的一部分，并且可以用来表示像素。关于这个结构体，应该注意以下几点：
@@ -823,8 +799,7 @@ Point 结构体的大小等于其两个int的大小。在 <span id="2.5: C 和 C
 
 <li>
 Point 结构体可以这样使用：
-<pre>
-	Point a;                // 屏幕上的两个点
+<pre><code class="language-cpp">	Point a;                // 屏幕上的两个点
 	Point b;
 	a.x = 0;                // 定义第一个点
 	a.y = 10;
@@ -832,7 +807,7 @@ Point 结构体可以这样使用：
 	b = a;                  // 将 a 复制到 b
 	b.y = 20;               // 重新定义 y 坐标
 	b.draw();               // 绘制它
-</pre>
+</pre></code>
 
 </ul>
 <p>
@@ -867,12 +842,11 @@ Point 结构体可以这样使用：
 在以下示例中，无论它们是单个变量、括号表达式还是函数调用，都是先求值 first，然后是 second，然后是 third，然后是 fourth：
 </p>
 
-<pre cpp>
-	first.second
+<pre><code class="language-cpp">	first.second
 	fourth += third = second += first
 	first &lt;&lt; second &lt;&lt; third &lt;&lt; fourth
 	first &gt;&gt; second &gt;&gt; third &gt;&gt; fourth
-</pre>
+</pre></code>
 
 <p>
 此外，在重载运算符时，实现重载运算符的函数的求值方式类似于重载的内置运算符，而不是一般的函数调用的顺序。
@@ -904,8 +878,7 @@ Point 结构体可以这样使用：
 当 switch 语句中的 case 条目下嵌套的语句进入后续的 case 或 default 条目时，编译器会发出“falling through”警告。如果 fall through 是有意的，则应使用属性 <a href="fallthrough.html">fallthrough</a>。以下是一个带注释的示例：
 </p>
 
-<pre cpp>
-void function(int selector)
+<pre><code class="language-cpp">void function(int selector)
 {
     switch (selector)
     {
@@ -920,7 +893,7 @@ void function(int selector)
         [[fallthrough]]     // 编译器提示 错误：没有东西可以 fall through
     }
 }
-</pre>
+</pre></code>
 
 <ul>
 <li>
@@ -931,12 +904,11 @@ void function(int selector)
 此属性可应用于类、typedef 名称、变量、参数、非静态数据成员、函数、枚举或枚举器。当它应用到实体时，当实体未使用时不会生成警告。示例：
 </p>
 
-<pre cpp>
-void fun([[maybe_unused]] size_t argument)
+<pre><code class="language-cpp">void fun([[maybe_unused]] size_t argument)
 {
     // argument 未被使用，但不会发出警告告诉你
 }
-</pre>
+</pre></code>
 
 <ul>
 <li>
@@ -953,8 +925,7 @@ void fun([[maybe_unused]] size_t argument)
 属性 <a href="nodiscard.html">nodiscard</a> 可在声明函数、类或枚举时指定。如果将函数声明为 <a href="nodiscard.html">nodiscard</a> 或者函数返回之前已用 <a href="nodiscard.html">nodiscard</a> 声明的实体，则仅当将该函数的返回值显式转换为 void 时，才允许忽略该函数的返回值。否则，当未使用返回值时，将发出警告。示例：
 </p>
 
-<pre cpp>
-	int [[nodiscard]] importantInt();
+<pre><code class="language-cpp">	int [[nodiscard]] importantInt();
 	struct [[nodiscard]] ImportantStruct { ... };
 	ImportantStruct factory();
 	    
@@ -963,7 +934,7 @@ void fun([[maybe_unused]] size_t argument)
 	    importantInt();         // 返回值未使用, 发出警告
 	    factory();              // 返回值未使用, 发出警告
 	}
-</pre>
+</pre></code>
 <hr />
 
 <p>

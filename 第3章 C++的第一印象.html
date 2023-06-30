@@ -516,19 +516,833 @@ C++有三个与数据隐藏相关的关键字：<code>private</code>、<code>pro
 
 <div id="3.3: 对C语法的几个补充-3.3.1: 引用"><h2 id="3.3.1: 引用" class="header"><a href="#3.3: 对C语法的几个补充-3.3.1: 引用">3.3.1: 引用</a></h2></div>
 
+<p>
+C++ 中定义变量有普通变量和指针两种方式，还有一种引用方式。引用（reference）是变量的别名，可以在涉及变量的语句中使用。例如：
+</p>
+<pre><code class="language-cpp">    int int_value;
+    int &amp;ref = int_value;
+</pre></code>
+
+<p>
+以上的代码定义了一个 <code>int_value</code> 变量和一个引用 <code>ref</code>，由于初始化，它们指向同一个内存位置。在定义引用时，使用 <code>&amp;</code> 符号表示 <code>ref</code> 不是一个 <code>int</code> 类型的变量，而是一个对 <code>int</code> 的引用。
+</p>
+
+<p>
+两个语句：
+</p>
+<pre><code class="language-cpp">    ++int_value;
+    ++ref;
+</pre></code>
+<p>
+作用相同，都会增加 <code>int_value</code> 的值。无论使用 <code>int_value</code> 或 <code>ref</code>，效果都相同。
+</p>
+
+<p>
+在 C++ 中，引用有一个重要的作用，即作为将可修改的参数传递给函数的一种方式。在标准 C 中，一个函数需要增加其参数的值，并返回void值时，需要使用指针参数：
+</p>
+<pre><code class="language-cpp">    void increase(int *valp)    // 接受一个指向 int 的指针
+    {
+        *valp += 5;
+    }
+
+    int main()
+    {
+        int x;
+
+        increase(&amp;x);           // 传递 x 的地址
+    }
+</pre></code>
+
+<p>
+在 C++ 中也可以使用指针调用上述函数，但是同样的效果也可以使用引用实现：
+</p>
+<pre><code class="language-cpp">    void increase(int &amp;valr)    // 接受一个对 int 的引用
+    {
+        valr += 5;
+    }
+
+    int main()
+    {
+        int x;
+
+        increase(x);            // 作为引用传递
+    }
+</pre></code>
+
+<p>
+虽然可以争论是否应该优先使用类似上述代码的方法，但是 <code>increase(x)</code> 语句表明传递的不是 <code>x</code> 本身，而是它的一个副本，但由于 <code>increase()</code> 的定义方式，<code>x</code> 的值会发生变化。使用引用还可以用于传递只被检查的对象（不需要拷贝副本也不需要使用 <code>const *</code>）或传递其修改是其使用所接受的副作用的对象。在这些情况下，使用引用比使用现有的选项（如按值拷贝或通过指针传递）更好。
+</p>
+
+<p>
+在C++中，引用是使用指针实现的。因此，就编译器而言，引用只是const指针。但是，使用引用时，程序员 <span id="3.3: 对C语法的几个补充-3.3.1: 引用-不需要了解间接级别"></span><strong id="不需要了解间接级别">不需要了解间接级别</strong> 。引用和普通指针之间的一个重要区别是，引用没有间接引用。例如：
+</p>
+
+<pre><code class="language-cpp">	extern int *ip;
+	extern int &amp;ir;
+
+	ip = 0;     // 重新分配ip，现在是0指针
+	ir = 0;     // ir不变，它引用的int变量现在是0。
+</pre></code>
+
+<p>
+为了避免混淆，我们建议遵循以下原则：
+</p>
+
+<p>
+在那些 <span id="3.3: 对C语法的几个补充-3.3.1: 引用-不改变其内置类型"></span><strong id="不改变其内置类型">不改变其内置类型</strong> 或指针类型参数的函数中，应使用<code>值</code>参数：
+</p>
+
+<pre><code class="language-cpp">	void some_func(int val)
+	{
+		cout &lt;&lt; val &lt;&lt; '\n';
+	}
+
+	int main()
+	{
+		int x;
+
+		some_func(x);       //传递了一个副本
+	}
+</pre></code>
+
+<p>
+当函数显式地必须 <span id="3.3: 对C语法的几个补充-3.3.1: 引用-更改其参数"></span><strong id="更改其参数">更改其参数</strong> 的值时，应优先使用<code>指针</code>参数。这些指针参数最好是函数的初始参数。这被称为“传出参数”。
+</p>
+
+<pre><code class="language-cpp">	void by_pointer(int *valp)
+	{
+		*valp += 5;
+	}
+</pre></code>
+
+<p>
+当函数 <span id="3.3: 对C语法的几个补充-3.3.1: 引用-不改变类或结构体参数"></span><strong id="不改变类或结构体参数">不改变类或结构体参数</strong> 的值，或者修改参数是一个微不足道的副作用（例如，参数是流）时，可以使用引用。如果函数 <span id="3.3: 对C语法的几个补充-3.3.1: 引用-不修改参数"></span><strong id="不修改参数">不修改参数</strong> ，则应使用<code>const引用</code>：
+</p>
+
+<pre><code class="language-cpp">	void by_reference(string const &amp;str)
+	{
+		cout &lt;&lt; str;    //没有修改str
+	}
+
+	int main ()
+	{
+		int x = 7;
+		by_pointer(&amp;x);         //传递了一个指针
+								//x可能会被更改
+		string str("hello");
+		by_reference(str);      //str没有改变
+	}
+</pre></code>
+
+<p>
+引用在 <span id="3.3: 对C语法的几个补充-3.3.1: 引用-实际参数不由函数改变, 但不希望拷贝实参argument来初始化形参parameter"></span><strong id="实际参数不由函数改变, 但不希望拷贝实参argument来初始化形参parameter">实际参数不由函数改变, 但不希望拷贝实参argument来初始化形参parameter</strong> 时发挥重要作用。这种情况发生在传递大对象作为参数或由函数返回时。在这些情况下，复制操作往往成为一个重要因素，因为整个对象必须被复制。在这些情况下，应使用引用。
+</p>
+
+<p>
+如果函数不修改参数，或者调用者不应修改返回的信息，则应使用const关键字。考虑以下示例：
+</p>
+
+<pre><code class="language-cpp">	struct Person                   // 一个大型结构体
+	{
+		char    name[80];
+		char    address[90];
+		double  salary;
+	};
+
+	Person person[50];          // 人员数据库
+
+								// printperson需要一个结构体的引用，
+								// 但不会更改它
+								
+	void printperson (Person const &amp;p)
+	{
+		cout &lt;&lt; "Name: " &lt;&lt; p.name &lt;&lt; '\n' &lt;&lt;
+				"Address: " &lt;&lt; p.address &lt;&lt; '\n';
+
+	}
+								// 通过索引值获取一个人员
+	Person const &amp;personIdx(int index)
+	{
+		return person[index];   // 返回一个引用，
+	}                           // 而不是person[index]的副本
+
+	int main()
+	{
+		Person boss;
+
+		printperson (boss);     // 没有传递指针，
+								// 因此变量不会被
+								// 函数修改   (而且 parameter 被 argument初始化的时候有拷贝成本。)
+		printperson(personIdx(5));
+								// 这里传递的是引用，
+								// 而不是副本  ( 实参类型为 Person const &amp; )
+	}
+</pre></code>
+
+<p>
+此外，需要注意的是，使用引用将对象作为函数参数传递还有另一个原因。通过引用传递对象时，避免了所谓的“复制构造函数copy constructor”的激活。关于复制构造函数copy constructor的内容在第9章讲解。
+</p>
+
+<p>
+引用可能会导致非常“丑陋”的代码。一个函数可以返回一个变量的引用，例如以下示例：
+</p>
+
+<pre><code class="language-cpp">	int &amp;func()
+	{
+		static int value;
+		return value;
+	}
+</pre></code>
+
+<p>
+这允许使用以下结构：
+</p>
+
+<pre><code class="language-cpp">	func() = 20;
+	func() += func();
+</pre></code>
+
+<p>
+可能多余地提醒一下，通常不应使用这样的结构。然而，有些情况下返回引用是有用的。实际上，在我们之前讨论流的内容中已经看到了这种现象的一个例子。在像<code>cout &lt;&lt; "Hello" &lt;&lt; '\n';</code>这样的语句中，插入运算符返回对cout的引用。因此，在这个语句中，首先将<code>“Hello”</code>插入到cout中，产生对cout的引用。通过这个引用，<code>'\n'</code>然后插入到cout对象中，再次产生对cout的引用，然后被忽略。
+</p>
+
+<p>
+下面列出了指针和引用之间的几个不同之处：
+</p>
+
+<ul>
+<li>
+引用不能单独存在，即没有东西可引用。像int &amp;ref;这样的引用声明是不允许的；ref应该引用什么呢？
+
+<li>
+引用可以声明为external。这些引用在其他地方初始化。
+
+<li>
+引用可以存在于函数的参数中：当函数调用时它们被初始化。
+
+<li>
+引用可以用于函数的返回类型。在这些情况下，函数确定返回值引用的是什么。
+
+<li>
+引用可以用作类的数据成员。我们稍后会回到这个用法。
+
+<li>
+指针本身是变量。它们指向具体的东西，或者只是“无所指”。
+
+<li>
+引用是其他变量的别名，不能重新将其用于另一个变量。一旦定义了引用，它就引用特定的变量。
+
+<li>
+指针（除了const指针）可以重新分配指向不同变量。
+
+<li>
+当使用取地址运算符&amp;与引用一起使用时，表达式将为所引用的变量的地址。而对于指针，普通指针本身是变量，因此指针变量的地址与指向的变量的地址无关。
+
+</ul>
 <div id="3.3: 对C语法的几个补充-3.3.2: 右值引用"><h2 id="3.3.2: 右值引用" class="header"><a href="#3.3: 对C语法的几个补充-3.3.2: 右值引用">3.3.2: 右值引用</a></h2></div>
 
-<div id="3.3: 对C语法的几个补充-3.3.3: 左值、右值等"><h2 id="3.3.3: 左值、右值等" class="header"><a href="#3.3: 对C语法的几个补充-3.3.3: 左值、右值等">3.3.3: 左值、右值等</a></h2></div>
+<p>
+C++中的rvalue引用
+</p>
 
+<p>
+在C++中，临时值（rvalue）和const&amp;类型的值是无法区分的。C++引入了一种新的引用类型，称为rvalue引用，定义为typename &amp;&amp;。
+</p>
+
+<p>
+rvalue引用的名称来源于赋值语句，赋值运算符左侧的变量称为lvalue，赋值运算符右侧的表达式称为rvalue。rvalues通常是临时的匿名值，例如函数返回值。
+</p>
+
+<p>
+在这种说法中，C++引用应被视为lvalue引用（使用typename &amp;符号表示）。它们可以与rvalue引用（使用typename &amp;&amp;符号表示）进行对比。
+</p>
+
+<p>
+理解rvalue引用的关键在于匿名变量的概念。匿名变量没有名称，这是编译器自动将其与rvalue引用相关联的区别特征。在介绍一些有趣的结构之前，让我们先看一些使用lvalue引用的标准情况。以下函数返回一个临时（匿名）值：
+</p>
+
+<pre><code class="language-cpp">	int intVal()
+	{
+		return 5;
+	}
+</pre></code>
+<blockquote>
+<p>
+ const引用也可以绑定到临时值（rvalue），这是C++中的一个特性。当使用const引用绑定到临时值时，编译器会创建一个临时对象，并将临时值复制到该对象中，然后将该对象的引用传递给const引用。这样做是为了确保临时值的生命周期可以持续到const引用的作用域中，而且可以避免对临时值的修改。<br ><br >然而，与右值引用不同，const引用不能通过std::move()来转移临时值的资源所有权，因为const引用保证了对象的不可修改性。这意味着，当使用const引用绑定到临时值时，我们只能读取临时值，而不能修改它。这种限制可以保证程序的安全性和可靠性，但也可能会导致性能上的问题。
+
+</p></blockquote>
+</pre></code>
+<p>
+虽然intVal的返回值可以分配给int变量，但它需要<code>拷贝</code>(右值引用的优点：避免拷贝)，当函数不返回int而是一些 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-大对象(large objects)"></span><strong id="大对象(large objects)">大对象(large objects)</strong> 时，可能会变得很难以处理。<code>引用或指针也不能用于收集匿名返回值</code>(non-const的引用不能绑定临时值， 右值引用可以， 当然 const引用也可,但避免不了 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-需要拷贝"></span><strong id="需要拷贝">需要拷贝</strong> 且 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-临时值的所有权不可剥夺"></span><strong id="临时值的所有权不可剥夺">临时值的所有权不可剥夺</strong> )，因为返回值不会存在于函数之外。因此以下操作是非法的（如编译器所示）：
+</p>
+<pre><code class="language-cpp">	int &amp;ir = intVal();         // 失败：引用了一个临时值
+	const int &amp;ic = intVal();   // 可行：不可变的临时值
+	int *ip = &amp;intVal();        // 失败：没有lvalue可用
+</pre></code>
+
+<p>
+补充: 一旦一个右值被绑定到一个具有名称的右值引用上，它就 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-变成了一个左值"></span><strong id="变成了一个左值">变成了一个左值</strong> ，并且可以像左值一样被使用。因此，我们可以对其进行读取、修改、销毁等任何操作。但是，在函数调用时，C++会根据参数类型来选择最佳匹配的函数，而右值引用形参只匹配右值引用实参，不会匹配左值实参。
+</p>
+
+<p>
+显然，临时值返回的intVal无法修改。但现在考虑这些函数：
+</p>
+
+<pre><code class="language-cpp">	void receive(int &amp;value)            // 注意：lvalue引用
+	{
+		cout &lt;&lt; "int value parameter\n";
+	}
+	void receive(int &amp;&amp;value)           // 注意：rvalue引用
+	{
+		cout &lt;&lt; "int R-value parameter\n";
+	}
+</pre></code>
+
+<p>
+并让我们从主函数main中调用此函数：
+</p>
+
+<pre><code class="language-cpp">	int main()
+	{
+		receive(18);
+		int value = 5;
+		receive(value);
+		receive(intVal());
+	}
+</pre></code>
+
+<p>
+此程序输出如下： (重载的函数 依据 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-右值"></span><strong id="右值">右值</strong> 的实际参数，自动匹配选用 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-形参列表为右值引用"></span><strong id="形参列表为右值引用">形参列表为右值引用</strong> 的函数)
+</p>
+
+<pre><code class="language-cpp">	int R-value parameter
+	int value parameter
+	int R-value parameter
+</pre></code>
+
+<p>
+因此，我们可以看到rvalue引用可以用于处理匿名返回值。
+</p>
+
+<p>
+C++中的Rvalue引用和 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-移动语义"></span><strong id="移动语义">移动语义</strong>
+</p>
+
+<p>
+程序的输出显示，如果一个匿名的int类型值作为参数传递给函数，则编译器会在所有情况下选择 <code>receive(int &amp;&amp;value)</code> 函数。需要注意的是，这包括了 <code>receive(18)</code> 这种情况：值18没有名字，因此会调用 <code>receive(int &amp;&amp;value)</code>。在内部，它实际上使用一个临时变量来存储18，正如下面修改后的 <code>receive</code> 函数所示：
+</p>
+
+<pre><code class="language-cpp">	void receive(int &amp;&amp;value)
+	{
+		++value;
+		cout &lt;&lt; "int R-value parameter, now: " &lt;&lt; value &lt;&lt; '\n';
+	}
+	int main()
+	{
+		receive(18);
+		// 显示19。
+	}
+</pre></code>
+
+<p>
+将 <code>receive(int &amp;value)</code> 与 <code>receive(int &amp;&amp;value)</code> 进行对比，与 <code>int &amp;value</code> 不是一个const引用无关。如果使用 <code>receive(int const &amp;value)</code> 将得到相同的结果。最重要的是： <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-如果函数传递的是一个匿名值，编译器将使用Rvalue引用来选择重载函数"></span><strong id="如果函数传递的是一个匿名值，编译器将使用Rvalue引用来选择重载函数">如果函数传递的是一个匿名值，编译器将使用Rvalue引用来选择重载函数</strong> 。
+</p>
+
+<p>
+然而，如果将 <code>void receive(int &amp;value)</code> 替换为 <code>void receive(int value)</code>，试图让函数重载两个版本，一个是值传递，一个是右值引用传递,则编译器会遇到问题。当需要在值参数和引用参数（无论是左值引用还是右值引用）之间做选择时，编译器无法做出决定并报告歧义ambiguity。在实际情况中，这不是一个问题。Rvalue引用是添加到语言中其目的是能够区分两种引用形式：命名值（使用左值引用）和匿名值（使用Rvalue引用）。   ----- 区分左值引用 和 右值引用。
+</p>
+
+<p>
+如果两个同名函数具有相同的参数类型和个数，那么无论它们是值传递还是引用传递，编译器都会将它们视为相同的函数，从而产生重载冲突。<br >
+因此，在函数重载中，函数的形参是 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-值传递还是引用传递并不影响函数重载的区分，会产生冲突"></span><strong id="值传递还是引用传递并不影响函数重载的区分，会产生冲突">值传递还是引用传递并不影响函数重载的区分，会产生冲突</strong> ，只有参数类型和个数不同才会产生函数重载 。
+</p>
+<blockquote>
+<p>
+ 对于同名函数的参数列表，只有顶层const资格的差异，则无法区分函数重载；只有值和引用的差异，则无法区分函数重载。
+
+</p></blockquote>
+</pre></code>
+<p>
+正是这种区分方式使得实现移动语义(<em>move semantics</em>)和完美转发(<em>perfect forwarding</em>)成为可能。此时，移动语义的概念还不能完全讨论（但请参见 <a href="第9章 类和内存分配.html">第9.7节</a> 进行更全面的讨论），但是可以很好地说明基本思想。
+</p>
+
+<p>
+考虑这样一种情况：一个函数返回一个包含指向动态分配的字符的指针的结构体Data。此外，该结构体定义了一个成员函数 <code>copy(Data const &amp;other)</code>，它接受另一个Data对象并将其数据复制到当前对象中。结构体 Data 的（部分）定义可能如下所示（对于细心的读者,在此示例中，由于使用<code>Data::copy()</code>而导致的内存泄漏应该被忽略）:
+</p>
+
+<pre><code class="language-cpp">struct Data
+{
+    char *text;
+    size_t size;
+    void copy(Data const &amp;other)    //一个深拷贝函数
+    {   //需要注意的是，由于 strdup() 函数会动态地分配内存，
+        //因此在使用完后，应该使用 free() 函数释放该内存以避免内存泄漏。
+        text = strdup(other.text);
+        size = strlen(text);
+    }
+};
+</pre></code>
+
+<p>
+接下来，定义了函数 <code>dataFactory</code> 和 <code>main</code>：
+</p>
+
+<pre><code class="language-cpp">Data dataFactory(char const *txt)
+{
+    Data ret = {strdup(txt), strlen(txt)};
+    return ret;
+}
+
+int main()
+{
+    Data d1 = {strdup("hello"), strlen("hello")};
+
+    Data d2;
+    d2.copy(d1);                        // 1 (见text)
+
+    Data d3;
+    d3.copy(dataFactory("hello"));      // 2
+}
+</pre></code>
+
+<p>
+在 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-1"></span><strong id="1">1</strong> 处，d2 适当地接收到 d1 的文本副本。但是在 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-2"></span><strong id="2">2</strong> 处，d3 接收到由 <code>dataFactory</code> 函数返回的临时对象中存储的文本副本。由于调用 <code>copy()</code> 后，临时对象将不再存在，因此会出现两个相关且不愉快的后果：
+</p>
+
+<ul>
+<li>
+返回值是一个临时对象：它存在的唯一理由是将其数据传递给 d3。现在，d3 复制(深拷贝)了临时对象的数据，这显然有些过度。
+
+<li>
+在调用 <code>copy()</code> 后，临时的 <code>Data</code> 对象丢失。遗憾的是，它的动态分配数据也丢失了，导致了内存泄漏。
+
+</ul>
+<p>
+在这种情况下，应该使用 rvalue reference。通过重载 <code>copy</code> 成员并添加成员 <code>copy(Data &amp;&amp;other)</code>，编译器能够区分情况 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-1"></span><strong id="1">1</strong> 和情况 *2*。现在，它在情况 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-1"></span><strong id="1">1</strong> 中调用最初的 <code>copy()</code> 成员，在情况 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-2"></span><strong id="2">2</strong> 中调用新定义的重载 <code>copy()</code> 成员：
+</p>
+
+<pre><code class="language-cpp">struct Data
+{
+    char *text;
+    size_t size;
+    void copy(Data const &amp;other)  //拷贝左值，则采取const引用形参，进行深拷贝。（拷贝开销是必要的）
+    {
+        text = strdup(other.text);
+    }
+    void copy(Data &amp;&amp;other)       //拷贝右值，则采取 右值引用形参, 实现移动语义
+    {
+        text = other.text;
+        other.text = 0;
+    }
+}
+</pre></code>
+
+<p>
+请注意，重载的 <code>copy()</code> 函数仅将 <code>other.text</code> 指针移动到当前对象的 <code>text</code> 指针，然后重新分配 0 给 <code>other.text</code>。结构体 <code>Data</code> 突然变得“移动感知”，并实现了“移动语义”，消除了先前显示的方法的缺点：
+</p>
+
+<ul>
+<li>
+不再进行深层复制（在情况 <span id="3.3: 对C语法的几个补充-3.3.2: 右值引用-1"></span><strong id="1">1</strong> 中需要），而是简单地将指针值给它的新所有者；
+
+<li>
+由于 <code>other.text</code> 不再指向动态分配的内存(由新的对象d3.text指向)，因此可以防止内存泄漏。
+
+</ul>
+<div id="3.3: 对C语法的几个补充-3.3.3: 左值、右值等"><h2 id="3.3.3: 左值、右值等" class="header"><a href="#3.3: 对C语法的几个补充-3.3.3: 左值、右值等">3.3.3: 左值、右值等</a></h2></div>
+<p>
+尽管本章引用了 <a href="">第5章 数据类型string|第5章</a> 、<a href="第7章 类.html">第7章</a> 和 <a href="">第16章</a> ，但它的主题最适合当前章节。不阅读本节也不会影响连贯性，您可以在熟悉这些未来章节的内容后再回来参考。
+</p>
+
+<p>
+历史上，C编程语言区分了左值（lvalues）和右值（rvalues）。该术语基于赋值表达式，其中赋值运算符左侧的表达式接收一个值（例如，它引用了内存中的位置，可以写入一个值，如一个变量），而赋值运算符右侧的表达式只需要表示一个值（它可以是一个临时变量、一个常量值或存储在变量中的值）：
+</p>
+<pre><code class="language-cpp">    lvalue = rvalue;
+</pre></code>
+<p>
+C++在此基础上增加了几种新的表达式引用方式：
+</p>
+
+<ul>
+<li>
+左值（lvalue）：在C++中，左值与C中的含义相同。它引用了一个位置，可以存储一个值，如一个变量、一个变量的引用或一个解引用的指针。
+
+<li>
+x值（xvalue）：表示即将过期的值(expiring value)。即将过期的值(将亡值)指的是一个对象（参见<a href="第7章 类.html">第7章</a>），在其生命周期结束之前。这样的对象通常必须确保它们拥有的资源（如动态分配的内存）也停止存在，但在对象的生命周期结束之前，这些资源可能被移动到另一个位置，从而防止它们被销毁(x意味着expiring，即将过期)。
+
+<li>
+g值（gvalue）：是一个广义左值(generalized lvalue)。广义左值指的是可以接收值的任何东西。它要么是<code>lvalue</code>或者<code>xvalue</code>。
+
+<li>
+pr值（prvalue）：是纯右值(pure rvalue)：字面值（如<code>1.2e3</code>）或不可变对象immutable object（例如从返回<code>const std::string</code>的函数返回的值（参见 <a href="第5章 数据类型string.html">第5章</a> ））。
+
+</ul>
+<blockquote>
+<p>
+ 在C++17中，一个临时对象只有被绑定到右值引用上才能被视为将亡值，否则它就是一个纯右值。<br ><br >在之前的 C++ 版本中，即使没有被绑定到右值引用上，一些表达式产生的临时对象也可能被视为将亡值。C++17 中的这个改变是为了更加明确和严格地定义语言规范，避免了一些潜在的混淆和错误使用的情况。<br ><br >要成为xvalue,临时对象必须被“捕获”在r-value reference上,否则它只是一个prvalue。
+
+</p></blockquote>
+</pre></code>
+<p>
+在C++17中:
+</p>
+<ul>
+<li>
+一个prvalue(纯右值)是具有值却没有标识的表达式。它是临时的,一旦表达式求值完成就会消失。
+
+<li>
+一个xvalue(将亡值)是通过右值引用捕获的prvalue。它同样是临时的,但是在被右值引用绑定之后获得了一定的“标识”和生命周期,直至右值引用离开作用域。(吊了一口气)
+
+<li>
+要成为xvalue,一个prvalue必须被“捕获”在右值引用上。否则,它只是一个普通的prvalue。
+<pre><code class="language-cpp">	void foo(int&amp;&amp;);        // 右值引用
+
+	int main() {
+		foo(1);             // 1是一个纯右值,不是将亡值
+		int&amp;&amp; r = 1;        // 1被绑定到右值引用上,所以是将亡值
+		foo(r);             // r是右值引用,所以传递的仍然是将亡值
+	}
+</pre></code>
+
+</ul>
+<p>
+如果表达式的值是以下情况之一，则该值是xvalue：
+</p>
+<ul>
+<li>
+返回值为 右值引用的函数所返回的值；
+
+<li>
+被强制转换为 右值引用的对象；
+
+<li>
+访问非静态类 数据成员的表达式，
+
+<ul>
+<li>
+其对象是xvalue，或
+
+<li>
+一个<code>.*</code>（指向成员的指针pointer-to-member）表达式（参见 <a href="第16章.html">第16章</a> ），其中左操作数是 xvalue，右操作数是指向数据成员的指针。
+
+</ul>
+</ul>
+<p>
+该规则的效果是， <span id="3.3: 对C语法的几个补充-3.3.3: 左值、右值等-命名的右值引用被视为lvalue，而匿名的右值引用被视为 xvalue"></span><strong id="命名的右值引用被视为lvalue，而匿名的右值引用被视为 xvalue">命名的右值引用被视为lvalue，而匿名的右值引用被视为 xvalue</strong> 。 函数的右值引用(Rvalue references to functions)被视为lvalue，无论是否为匿名。
+</p>
+
+<p>
+这里有一个小例子。考虑这个简单的结构体：
+</p>
+<pre><code class="language-cpp">    struct Demo 
+    {
+        int d_value;
+    };
+</pre></code>
+
+<p>
+此外，我们还有以下函数声明和定义：
+</p>
+
+<pre><code class="language-cpp">    Demo &amp;&amp;operator+(Demo const &amp;lhs, Demo const &amp;rhs);
+    Demo &amp;&amp;factory();
+
+    Demo demo;
+    Demo &amp;&amp;rref = static_cast&lt;Demo &amp;&amp;&gt;(demo);
+</pre></code>
+
+<p>
+像这样的表达式：
+</p>
+
+<pre><code class="language-cpp">    factory();                    // 函数返回的 匿名的右值引用, xvalue
+    factory().d_value;            // 点号 左边就是 xvalue
+    static_cast&lt;Demo &amp;&amp;&gt;(demo);   // 强制转换为 右值引用，是xvalue
+    demo + demo                   // 函数返回的 匿名的右值引用, xvalue
+</pre></code>
+
+<p>
+都是 xvalue。但是，表达式 <code>rref;</code> 是一个 lvalue。
+</p>
+
+<p>
+在许多情况下，知道使用了什么类型的gvalue或rvalue并不特别重要。在C ++注释中，术语lhs（左手边）经常用于表示写在二元运算符左侧的操作数，而术语rhs（右手边）经常用于表示写在二元运算符右侧的操作数。lhs和rhs操作数实际上可以是gvalue（例如，表示普通变量时），但它们也可以是prvalue（例如，使用加法运算符相加的数字值）。无论lhs和rhs操作数是gvalue还是lvalue，都可以从它们使用的上下文中确定。
+</p>
 <div id="3.3: 对C语法的几个补充-3.3.4: 强类型枚举"><h2 id="3.3.4: 强类型枚举" class="header"><a href="#3.3: 对C语法的几个补充-3.3.4: 强类型枚举">3.3.4: 强类型枚举</a></h2></div>
+<p>
+在C++中，枚举值实际上是int类型的值，从而绕过类型安全。例如，可以比较不同枚举类型的值的（不）相等性，尽管需要通过（静态）类型转换。
+</p>
+
+<p>
+当前的enum类型存在另一个问题，即它们的值不仅限于枚举类型名称本身，而是限于定义枚举的作用域。因此，在相同作用域内的两个枚举不能具有相同的名称。
+</p>
+
+<p>
+这些问题可以通过定义<code>enum classes</code>来解决。可以像以下示例一样定义enum class：
+</p>
+<pre><code class="language-cpp">   enum class SafeEnum
+   {
+       NOT_OK,     // 0， 隐含
+       OK          = 10,
+       MAYBE_OK    // 11，隐含
+   };
+</pre></code>
+   
+<p>
+枚举类默认使用<code>int</code>值，但可以使用<code>:type</code>注释轻松更改使用的值类型，例如：
+</p>
+<pre><code class="language-cpp">   enum class CharEnum: unsigned char
+   {
+       NOT_OK,
+       OK
+   };
+</pre></code>
+<p>
+要使用在枚举类中定义的值，必须同时提供枚举名称。例如，<code>OK</code>是未定义的，而<code>CharEnum::OK</code>才是已定义。
+</p>
+
+<p>
+使用数据类型规范（注意默认为 int 类型），可以使用枚举类的前向声明。例如：
+</p>
+<ul>
+<li>
+<code>enum Enum1;</code> 不合法：没有可用的大小
+
+<li>
+<code>enum Enum2: unsigned int;</code> <span id="3.3: 对C语法的几个补充-3.3.4: 强类型枚举-合法"></span><strong id="合法">合法</strong> ：显式声明类型
+
+<li>
+<code>enum class Enum3;</code>         <span id="3.3: 对C语法的几个补充-3.3.4: 强类型枚举-合法"></span><strong id="合法">合法</strong> ：使用默认的 int 类型
+
+<li>
+<code>enum class Enum4: char;</code>   <span id="3.3: 对C语法的几个补充-3.3.4: 强类型枚举-合法"></span><strong id="合法">合法</strong> ：显式声明类型
+
+</ul>
+<p>
+强类型枚举的一系列符号也可以在 <code>switch</code> 中使用省略号语法(a switch using the ellipsis syntax)进行指示，如下一个示例所示：
+</p>
+
+<pre><code class="language-cpp">SafeEnum enumValue();
+
+switch (enumValue())
+{
+    case SafeEnum::NOT_OK ... SafeEnum::OK:
+        cout &lt;&lt; "Status is known\n";
+        break;
+
+    default: 
+        cout &lt;&lt; "Status unknown\n";
+        break;
+}
+</pre></code>
+
+<p>
+其中，<code>SafeEnum</code> 是一个强类型枚举，省略号语法用于匹配枚举值的范围。如果 <code>enumValue()</code> 返回的枚举值在 <code>NOT_OK</code> 和 <code>OK</code> 之间，则输出 "Status is known"，否则输出 "Status unknown"。
+</p>
 
 <div id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表"><h2 id="3.3.5: 初始值设定项列表" class="header"><a href="#3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表">3.3.5: 初始值设定项列表</a></h2></div>
+<p>
+initializer list
+</p>
+
+<p>
+在C语言中，初始化列表被定义为由花括号括起来的值列表，这些值可能本身又套娃了一个初始化列表。在C中，这些初始化列表通常用于初始化 <span id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-数组和结构体"></span><strong id="数组和结构体">数组和结构体</strong> 。
+</p>
+
+<p>
+C++通过引入类型<code>initializer_list&lt;Type&gt;</code>来扩展这个概念，其中<code>Type</code>被替换为初始化列表中使用的值的类型名称。在C++中，初始化列表与C中的初始化列表一样，是递归的，因此它们也可以与 <span id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-多维数组、结构体和类"></span><strong id="多维数组、结构体和类">多维数组、结构体和类</strong> 一起使用。
+</p>
+
+<p>
+在使用<code>initializer_list</code>之前，必须包含<code>&lt;initializer_list&gt;</code>头文件。
+</p>
+
+<p>
+像C语言中一样，初始化列表由花括号括起来的值列表组成。但与C不同的是， <span id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-函数可以定义初始化列表参数"></span><strong id="函数可以定义初始化列表参数">函数可以定义初始化列表参数</strong> 。例如，
+</p>
+
+<pre><code class="language-cpp">void values(std::initializer_list&lt;int&gt; iniValues)
+{
+}
+</pre></code>
+
+<p>
+像<code>values</code>这样的函数可以如下调用：
+</p>
+
+<pre><code class="language-cpp">values({2, 3, 5, 7, 11, 13});
+</pre></code>
+
+<p>
+初始化列表作为一个由花括号括起来的值列表的参数出现。由于初始化列表的递归性质，也可以传递二维的值序列，如下一个例子所示：
+</p>
+
+<pre><code class="language-cpp">void values2(std::initializer_list&lt;std::initializer_list&lt;int&gt;&gt; iniValues)
+{}
+
+values2({{1, 2}, {2, 3}, {3, 5}, {4, 7}, {5, 11}, {6, 13}});
+</pre></code>
+
+<p>
+初始化列表是常量表达式，不能被修改。但是，可以使用它们的<code>size</code>、<code>begin</code>和<code>end</code>成员来检索它们的大小和值，如下所示：
+</p>
+
+<pre><code class="language-cpp">void values(initializer_list&lt;int&gt; iniValues)
+{
+    cout &lt;&lt; "Initializer list having " &lt;&lt; iniValues.size() &lt;&lt; " values\n";
+    for (initializer_list&lt;int&gt;::const_iterator it = iniValues.begin(); it != iniValues.end(); ++it)
+    {
+        cout &lt;&lt; "Value: " &lt;&lt; *it &lt;&lt; '\n';
+    }
+}
+</pre></code>
+
+<p>
+初始化列表也可以用于 <span id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-初始化类的对象"></span><strong id="初始化类的对象">初始化类的对象</strong> （参见 <a href="">第7.5节</a> ）。
+</p>
 
 <div id="3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-3.3.5.1: 指定初始化"><h3 id="3.3.5.1: 指定初始化" class="header"><a href="#3.3: 对C语法的几个补充-3.3.5: 初始值设定项列表-3.3.5.1: 指定初始化">3.3.5.1: 指定初始化</a></h3></div>
 
 <div id="3.3: 对C语法的几个补充-3.3.6: 位字段的初始值设定项"><h2 id="3.3.6: 位字段的初始值设定项" class="header"><a href="#3.3: 对C语法的几个补充-3.3.6: 位字段的初始值设定项">3.3.6: 位字段的初始值设定项</a></h2></div>
 
 <div id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断"><h2 id="3.3.7: 使用auto做类型推断" class="header"><a href="#3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断">3.3.7: 使用auto做类型推断</a></h2></div>
+
+<p>
+关键字<code>auto</code>可用于简化变量的类型定义和函数的返回类型，如果编译器能够确定这些变量或函数的正确类型。使用<code>auto</code>作为存储类说明符已不再被C++所支持：变量定义如<code>auto int var</code>将导致编译错误。
+</p>
+
+<p>
+在很难确定变量类型的情况下，关键字<code>auto</code>会被使用。例如，在模板上下文中遇到这些情况（参见 第<a href="">18</a>至<a href="">23</a>章）。它也用于已知类型非常长但对编译器也是自动可用的情况。在这种情况下，程序员使用<code>auto</code>来避免输入长类型定义。
+</p>
+
+<p>
+在注释中，只能给出简单的示例。有关<code>auto</code>（以及相关的<code>decltype</code>函数）的更多信息，请参见 <a href="">第21.1.2节</a> 。
+</p>
+
+<p>
+当定义和初始化变量时，如<code>int variable = 5</code>，初始化表达式的类型是已知的：它是一个<code>int</code>类型，除非程序员的意图不同，否则可以用它来定义变量的类型（这是一个有些牵强的例子，因为在这种情况下它减少了代码的清晰度）：
+</p>
+
+<pre><code class="language-cpp">auto variable = 5;
+</pre></code>
+
+<p>
+然而，使用<code>auto</code>是很有吸引力的。在 <a href="第5章 数据类型string.html">第5章</a> 中，引入了迭代器概念（也可参见第 <a href="">12</a> 和 <a href="">18</a> 章）。迭代器经常具有长的类型定义，例如：
+</p>
+
+<pre><code class="language-cpp">std::vector&lt;std::string&gt;::const_reverse_iterator
+</pre></code>
+
+<p>
+函数可以返回具有特定类型的对象。由于编译器了解这些类型，我们可以通过使用auto来利用这个知识。假设一个函数begin()声明如下：
+</p>
+
+<pre><code class="language-cpp">std::vector&lt;std::string&gt;::const_reverse_iterator begin();
+</pre></code>
+
+<p>
+与其编写一个较长的变量定义（在下面的//1处），我们可以使用一个更短的定义（在//2处）：
+</p>
+
+<pre><code class="language-cpp">std::vector&lt;std::string&gt;::const_reverse_iterator iter = begin();    // 1
+auto iter = begin();                                                // 2
+</pre></code>
+
+<p>
+定义和初始化其他这样的类型的变量也很容易。在初始化这些变量时，可以使用iter来初始化它们，auto可以用来推断它们的类型：
+</p>
+
+<pre><code class="language-cpp">auto start = iter;
+</pre></code>
+
+<p>
+通常情况下，"plain type" 通常被理解为指那些非引用类型、非类类型、非数组类型、非函数类型、非指向非 "plain type" 类型的指针类型等。也就是说，它包括了大部分的内置数据类型和指针(pointer)类型，但不包括引用类型、数组类型、类类型、枚举类型等。
+</p>
+
+<p>
+使用auto定义变量时，变量的类型是从变量的初始化表达式中推断出来的。普通类型(plain type)和指针类型都是按照原样使用，但是当初始化表达式是引用类型时，引用的基本(basic)类型（ <span id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-去除引用，省略const或volatile修饰符"></span><strong id="去除引用，省略const或volatile修饰符">去除引用，省略const或volatile修饰符</strong> ）会被使用。---- 如果新变量在定义时没有手动用<code>&amp;</code>修饰，那么auto推导的类型 <span id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-不会是引用"></span><strong id="不会是引用">不会是引用</strong> ！即使被推导的变量是一个引用变量，auto推导的依据是所引用内容的类型，在此基础上，该类型的顶层<code>const</code>也会被忽略。
+</p>
+
+<ul>
+<li>
+如果被引用对象是一个常量对象，那么 auto 推导出的类型也会忽略顶层 const 限定符，即推导出的类型不会包含顶层 const 限定符。这是因为 auto 推导的依据 <span id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-只考虑类型匹配"></span><strong id="只考虑类型匹配">只考虑类型匹配</strong> ，而顶层 const 限定符在类型匹配时不会被考虑。如果想要保留顶层 const 限定符，可以使用 decltype(auto) 来进行推导。
+
+</ul>
+<blockquote>
+<p>
+ 需要明确 引用&amp;  和 const资格的时候，可以(尽量)在<code>auto</code>定义新变量的语句处显式地修饰。<br ><br > 让auto只负责推导变量类型中<code>auto</code>的部分，其他的<code>const</code>和<code>&amp;</code>都手动添加定义修饰。<br ><br > The simple advice is: always be explicit and use the form auto&amp; as well as auto* even if auto is able to deduce a pointer type. <br ><br > 简单的建议是：始终明确并使用 <code>auto&amp;</code> 和 <code>auto*</code> 形式，即使 auto 能够推断出指针类型。
+
+</p></blockquote>
+</pre></code>
+<p>
+如果需要引用类型，则可以使用auto&amp;或auto&amp;&amp;。同样，可以使用const和/或指针修饰符与auto关键字结合使用。以下是一些示例：
+</p>
+
+<pre><code class="language-cpp">int value;
+auto another = value;   // 定义'int another'。  因为是plain type，所以使用auto原样推导出来了。
+
+string const &amp;text();
+auto str = text();      // text的平凡类型(plain type)是string，所以定义了string str，而不是string const str
+str += "...";           // 所以，这是可以的。（1.auto推导会依据 引用变量所引用的类型  2.该类型的顶层const被忽略）
+
+int *ip = &amp;value;
+auto ip2 = ip;          // 定义int *ip2。  指针类型是可以推导出来的。  
+
+int *const &amp;ptr = ip;
+auto ip3 = ptr;         // 定义int *ip3，省略const &amp;
+auto const &amp;ip4 = ptr;  // 定义int *const &amp;ip4
+</pre></code>
+
+<p>
+在倒数第二个 auto 规范中，从引用到基本类型的标记（从右往左读）被省略了： <code>const &amp;</code> 省略。因此，定义了 <code>int *ip2</code>。
+</p>
+
+<p>
+在最后一个 auto 规范中， auto 也产生了 <code>int *</code>，但在类型定义中，手动将 <code>const &amp;</code> 添加到 auto 生成的类型中，因此定义了 <code>int *const &amp;ip4</code> 。
+</p>
+
+<p>
+关键字 auto 还可以用于推迟函数返回类型的定义。返回指向包含10个整数数组的指针的函数 intArrPtr 的声明如下：
+</p>
+<pre><code class="language-cpp">    int (*intArrPtr())[10];
+</pre></code>
+
+<p>
+这样的声明相当复杂。例如，在其他复杂性之间，它需要使用括号保护指针，结合函数的参数列表。在这种情况下，可以使用 auto 返回类型推迟返回类型的规定，后跟函数可能接收的任何其他规定（例如，作为常量成员（参见 <a href="第7章 类.html">第7.7节</a> ）或在其 <code>noexcept</code> 规定之后（参见 <a href="">第23.7节</a> ））之后，指定函数的返回类型。
+</p>
+
+<p>
+使用 auto 声明上述函数，则声明变为：
+</p>
+
+<pre><code class="language-cpp">    auto intArrPtr() -&gt; int (*)[10];
+</pre></code>
+
+<p>
+使用 auto 声明函数的返回类型规定称为 <span id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-延迟指定"></span><strong id="延迟指定">延迟指定</strong> 的返回类型。(late-specified return type)
+</p>
+
+<p>
+自 <span id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-C++14"></span><strong id="C++14">C++14</strong> 标准以来，对于返回 auto 的函数，不再需要 <span id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-延迟返回类型规定"></span><strong id="延迟返回类型规定">延迟返回类型规定</strong> 。这样的函数现在可以像这样简单地声明：
+</p>
+
+<pre><code class="language-cpp">    auto autoReturnFunction();
+</pre></code>
+
+<p>
+在这种情况下，函数定义和函数声明都有一些限制：
+如果在函数定义中使用多个返回语句，则它们都必须返回相同类型的值；
+仅返回 auto 的函数不能在编译器看到它们的定义之前使用。因此，它们不能在仅有声明的情况下使用；
+当以递归函数的形式返回 auto 的函数时，必须在递归调用之前看到至少一个返回语句。例如，
+</p>
+
+<pre><code class="language-cpp">auto fibonacci(size_t n)
+{
+    if (n &lt;= 1)
+        return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+</pre></code>
 
 <div id="3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-3.3.7.1: 结构化绑定声明"><h3 id="3.3.7.1: 结构化绑定声明" class="header"><a href="#3.3: 对C语法的几个补充-3.3.7: 使用auto做类型推断-3.3.7.1: 结构化绑定声明">3.3.7.1: 结构化绑定声明</a></h3></div>
 
